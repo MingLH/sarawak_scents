@@ -84,20 +84,51 @@ $dbname = "sarawak_scents_db";</code></pre>
 <h2>📂 Folder Structure</h2>
 <pre><code>/sarawak-scents
 │
-├── /admin           # Admin dashboard and logic
-├── /assets          # Images, logos, and icons
-├── /css             # Global stylesheets (style.css)
-├── /includes        # Reusable components (header, footer, db_connect)
-├── /js              # JavaScript files for interactivity
-├── /uploads         # Product images uploaded by Admin
+├── /admin                   # (Member 6's Workspace)
+│   ├── .gitkeep
+│   ├── login.php            # Separate login for Admins
+│   ├── dashboard.php        # The main admin control panel
+│   ├── add_product.php      # Form to upload products & images
+│   └── manage_orders.php    # Table to view/update customer orders
 │
-├── database.sql     # Database import file
-├── index.php        # Homepage
-├── shop.php         # Product catalog
-├── cart.php         # Shopping cart logic
-├── login.php        # User login page
-├── register.php     # User registration page
-└── README.md        # Project documentation</code></pre>
+├── /assets                  # (Member 3's Workspace)
+│   ├── .gitkeep
+│   ├── /images              # Product photos go here
+│   └── /logo                # Branding files
+│
+├── /css                     # (Member 3's Workspace)
+│   ├── .gitkeep
+│   └── style.css            # The Master Stylesheet (Colors, Fonts)
+│
+├── /includes                # (Member 1 & 2's Workspace)
+│   ├── .gitkeep
+│   ├── db_connect.php       # Database connection (Member 2)
+│   ├── header.php           # Navigation Bar (Member 1)
+│   └── footer.php           # Copyright & Links (Member 1)
+│
+├── /js                      # (Shared Workspace)
+│   └── .gitkeep             # (Empty for now, unless you need custom scripts)
+│
+├── /uploads                 # (Storage for Product Images)
+│   └── .gitignore           # (The special file that ignores images)
+│
+├── database.sql             # (Member 2 - The Blueprint)
+├── README.md                # (Project Documentation)
+│
+├── index.php                # (Member 1 - Homepage)
+│
+├── register.php             # (Member 4 - Sign Up)
+├── login.php                # (Member 4 - Sign In)
+├── logout.php               # (Member 4 - End Session)
+│
+├── shop.php                 # (Member 5 - Product Catalog)
+├── product_details.php      # (Member 5 - Single Product View)
+├── cart.php                 # (Member 5 - Shopping Cart)
+│
+├── profile.php              # (Member 7 - View User Info)
+├── edit_profile.php         # (Member 7 - Update Address/Phone)
+├── change_password.php      # (Member 7 - Security Update)
+└── order_history.php        # (Member 7 - Past Purchases)</code></pre>
 
 <hr>
 
