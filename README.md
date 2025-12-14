@@ -60,7 +60,7 @@
 <h3>1. Clone the Repository</h3>
 <p>Open your terminal (Git Bash) and navigate to your XAMPP <code>htdocs</code> folder:</p>
 <pre><code>cd C:/xampp/htdocs
-git clone https://github.com/&lt;YOUR-USERNAME&gt;/sarawak_scents.git</code></pre>
+git clone https://github.com/&lt;MingLH&gt;/sarawak_scents.git</code></pre>
 
 <h3>2. Setup the Database</h3>
 <ol>
