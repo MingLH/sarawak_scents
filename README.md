@@ -39,7 +39,6 @@
   <li><strong>Product Management (CRUD):</strong> Add, Edit, and Delete products.</li>
   <li><strong>User Management:</strong> View a read-only list of all registered members.</li>
   <li><strong>Secure File Upload:</strong> Upload product images securely (Admin only).</li>
-  <li><strong>Order Management:</strong> Update order status (e.g., from "Pending" to "Shipped").</li>
 </ul>
 
 <hr>
