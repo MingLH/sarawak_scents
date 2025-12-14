@@ -15,7 +15,7 @@
 
 <hr>
 
-<h2>✨ Features</h2>
+<h1>✨ Features</h1>
 
 <h3>👤 Public User (Guest)</h3>
 <ul>
@@ -29,22 +29,25 @@
   <li><strong>Secure Login:</strong> Authentication with hashed passwords.</li>
   <li><strong>Profile Management:</strong> Update shipping address and personal details.</li>
   <li><strong>Checkout:</strong> Complete a "dummy" transaction (Bank Transfer simulation).</li>
-  <li><strong>Order History:</strong> View past orders and payment receipts.</li>
+  <li><strong>Transaction Receipts:</strong> View on-screen payment receipts and receive <strong>email notifications</strong> after purchase.</li>
+  <li><strong>Order History:</strong> View detailed logs of past orders.</li>
 </ul>
 
 <h3>🛡️ Administrator (Admin)</h3>
 <ul>
-  <li><strong>Dashboard:</strong> View sales summaries and daily/weekly transaction reports.</li>
+  <li><strong>Dashboard:</strong> View sales summaries with <strong>Daily, Weekly, and Monthly</strong> transaction reports.</li>
   <li><strong>Product Management (CRUD):</strong> Add, Edit, and Delete products.</li>
+  <li><strong>User Management:</strong> View a read-only list of all registered members.</li>
   <li><strong>Secure File Upload:</strong> Upload product images securely (Admin only).</li>
   <li><strong>Order Management:</strong> Update order status (e.g., from "Pending" to "Shipped").</li>
 </ul>
 
 <hr>
 
-<h2>🛠️ Tech Stack</h2>
+<h1>🛠️ Tech Stack</h1>
 <ul>
   <li><strong>Frontend:</strong> HTML5, CSS3, JavaScript (Vanilla).</li>
+  <li><strong>Visualization:</strong> Chart.js (for Admin Dashboard).</li>
   <li><strong>Backend:</strong> PHP (Native).</li>
   <li><strong>Database:</strong> MySQL (via phpMyAdmin).</li>
   <li><strong>Server Environment:</strong> XAMPP (Apache).</li>
@@ -87,9 +90,10 @@ $dbname = "sarawak_scents_db";</code></pre>
 ├── /admin                   # (Member 6's Workspace)
 │   ├── .gitkeep
 │   ├── login.php            # Separate login for Admins
-│   ├── dashboard.php        # The main admin control panel
+│   ├── dashboard.php        # The main admin control panel + Transaction Reports
 │   ├── add_product.php      # Form to upload products & images
-│   └── manage_orders.php    # Table to view/update customer orders
+│   ├── manage_orders.php    # Table to view/update customer orders
+│   └── members_list.php     # Requirement: Read-only view of members
 │
 ├── /assets                  # (Member 3's Workspace)
 │   ├── .gitkeep
@@ -124,6 +128,7 @@ $dbname = "sarawak_scents_db";</code></pre>
 ├── shop.php                 # (Member 5 - Product Catalog)
 ├── product_details.php      # (Member 5 - Single Product View)
 ├── cart.php                 # (Member 5 - Shopping Cart)
+├── receipt.php 	           # (Member 5 - Show Payment Receipt) 
 │
 ├── profile.php              # (Member 7 - View User Info)
 ├── edit_profile.php         # (Member 7 - Update Address/Phone)
