@@ -2,7 +2,7 @@
 $servername = "localhost";
 $username = "root";
 $password = "";
-$dbname = "Sarawak_scent";
+$dbname = "sarawak_scents_db";
 
 $conn = mysqli_connect($servername, $username, $password, $dbname);
 
