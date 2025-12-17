@@ -11,11 +11,11 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role
     // If they are a regular member, send them to their index
     if (isset($_SESSION['role']) && $_SESSION['role'] === 'member') {
         $_SESSION['error_message'] = "You don't have permission to access this page";
-        header("Location: index.php");
+        header("Location: ../index.php");
     } else {
         // If they aren't logged in at all, send to login
         $_SESSION['error_message'] = "You don't have permission to access this page";
-        header("Location: login.php");
+        header("Location: ../login.php");
     }
     exit();
 }
@@ -38,7 +38,7 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role
     <div class="container">
         <h1>Admin Dashboard</h1>
         <p>Hello, <strong><?php echo ($_SESSION['full_name']); ?></strong></p>
-        <a href="logout.php" class="logout-link" id="profileLogoutBtn">Log Out</a>
+        <a href="../logout.php" class="logout-link" id="profileLogoutBtn">Log Out</a>
     </div>
     <script src="js/userAuthLogOut.js"></script>
 </body>
