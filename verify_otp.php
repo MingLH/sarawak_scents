@@ -1,8 +1,8 @@
 <?php
 // verify_otp.php
-session_start();
 header('Content-Type: application/json');
-include 'db_connect.php';
+include 'includes/db_connect.php';
+include 'includes/check_authorization.php';
 
 $data = json_decode(file_get_contents("php://input"), true);
 $email = mysqli_real_escape_string($conn, $data['email'] ?? '');
@@ -14,10 +14,10 @@ $result = mysqli_query($conn, $sql);
 
 if (mysqli_num_rows($result) > 0) {
     // MATCH FOUND!
-    
+
     // Save email in session so reset_password.html knows who to update
     $_SESSION['reset_email'] = $email;
-    
+
     // Clear the OTP from DB so it can't be used again
     mysqli_query($conn, "UPDATE users SET otp_code = NULL WHERE email = '$email'");
 
