@@ -1,39 +1,60 @@
 <?php
-session_start(); // Start a session to remember the user is logged in
-include 'db_connect.php';
+session_start();
+
+// If already logged in, don't show the login form, send them to their dashboard
+if (isset($_SESSION['user_id'])) {
+    if ($_SESSION['role'] === 'admin') {
+        header("Location: admin_dashboard.php");
+    } else {
+        header("Location: index.php");
+    }
+    exit();
+}
+
+include 'includes/db_connect.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-    // 1. Get data from the form
     $email = mysqli_real_escape_string($conn, $_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
 
-    // 2. Check Database for matching email AND password
-    $sql = "SELECT * FROM users WHERE email = '$email' AND password = '$password'";
+    $sql = "SELECT * FROM users WHERE email = '$email'";
     $result = mysqli_query($conn, $sql);
 
-    // 3. Verify Result
-    if (mysqli_num_rows($result) === 1) {
-        // SUCCESS: User found
+    if ($result && mysqli_num_rows($result) === 1) {
         $row = mysqli_fetch_assoc($result);
-        
-        // Save user info in session variables (to use on other pages)
-        $_SESSION['user_id'] = $row['user_id'];
-        $_SESSION['full_name'] = $row['full_name'];
 
-        // Redirect to your homepage/dashboard
-        echo "<script>
-                alert('Login Successful! Welcome " . $row['full_name'] . "');
-                window.location.href = 'index.php'; 
-              </script>";
+        if (password_verify($password, $row['password'])) {
+
+            // 1. Store session data
+            $_SESSION['user_id'] = $row['user_id'];
+            $_SESSION['full_name'] = $row['full_name'];
+            $_SESSION['role'] = $row['role'];
+
+            // 2. Determine redirect destination based on role
+            $redirectPage = 'index.php'; // Default for members
+            if ($row['role'] === 'admin') {
+                $redirectPage = 'admin_dashboard.php';
+            }
+
+            // 3. Success Alert and Redirect
+            echo "<script>
+                    alert('Login Successful! Welcome " . $row['full_name'] . "');
+                    window.location.href = '$redirectPage';
+                </script>";
+            exit();
+        } else {
+            echo "<script>
+                    alert('Invalid password. Please try again.');
+                    window.history.back();
+                </script>";
+        }
     } else {
-        // FAILURE: No match found
         echo "<script>
-                alert('Invalid email or password. Please try again.');
-                window.location.href = 'login.php';
-              </script>";
+                alert('Account not found.');
+                window.history.back();
+            </script>";
     }
-
     mysqli_close($conn);
 }
 ?>
@@ -50,6 +71,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <body>
     <div class="login-container">
+
+        <?php if (isset($_SESSION['error_message'])): ?>
+            <div
+                style="background-color: #fff3cd; color: #856404; padding: 15px; text-align: center; border: 1px solid #ffeeba; margin-bottom: 20px; border-radius: 5px;">
+                <?php
+                echo htmlspecialchars($_SESSION['error_message']);
+                unset($_SESSION['error_message']);
+                ?>
+            </div>
+        <?php endif; ?>
+
         <div class="card">
 
             <div class="logo-container">
