@@ -1,6 +1,6 @@
 <?php
-session_start();
-include 'db_connect.php';
+include 'includes/db_connect.php';
+include 'includes/check_authorization.php';
 
 // Enable error reporting
 error_reporting(E_ALL);
@@ -11,7 +11,7 @@ if (!isset($_SESSION['reset_email'])) {
     echo "<script>
             alert('Session expired or verification failed. Please start the password reset process again.');
             window.location.href = 'forget_password.php';
-          </script>";
+        </script>";
     exit();
 }
 
@@ -27,24 +27,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     if ($password !== $repassword) {
-        die("Error: Passwords do not match. <a href='reset_password.html'>Go Back</a>");
+        die("Error: Passwords do not match. <a href='reset_password.php'>Go Back</a>");
     }
 
-    // 3. Update the Database
-    
-    $new_password_safe = mysqli_real_escape_string($conn, $password); 
+    // 3. Update the Database with HASHED password
+    // Use password_hash instead of mysqli_real_escape_string for the password
+    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-    // SQL UPDATE Query
-    $update_sql = "UPDATE users SET password = '$new_password_safe' WHERE email = '$email_to_update'";
+    // SQL UPDATE Query using the hash
+    $update_sql = "UPDATE users SET password = '$hashed_password' WHERE email = '$email_to_update'";
 
     if (mysqli_query($conn, $update_sql)) {
         // SUCCESS: Clear session data and redirect to login
-        session_destroy(); // Log out the user/clear reset session
+        session_destroy();
         
         echo "<script>
                 sessionStorage.setItem('passwordResetSuccess', 'true');
                 window.location.href = 'login.php';
-              </script>";
+            </script>";
+        exit();
     } else {
         // Database Error
         echo "<h3>Database Error</h3>";
