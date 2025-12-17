@@ -16,7 +16,7 @@ if (!isset($_SESSION['user_id'])) {
 // 2. Role Check: If user is an Admin, they shouldn't be here
 if ($_SESSION['role'] === 'admin') {
     // Redirect them to their own dashboard
-    header("Location: admin_dashboard.php");
+    header("Location: admin/admin_dashboard.php");
     exit();
 }
 
