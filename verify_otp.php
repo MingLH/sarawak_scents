@@ -1,8 +1,15 @@
 <?php
 // verify_otp.php
+session_start();
 header('Content-Type: application/json');
+
+// If a logged-in user tries to hit this endpoint, stop them
+if (isset($_SESSION['user_id'])) {
+    echo json_encode(['status' => 'error', 'message' => 'You are already logged in.']);
+    exit();
+}
+
 include 'includes/db_connect.php';
-include 'includes/check_authorization.php';
 
 $data = json_decode(file_get_contents("php://input"), true);
 $email = mysqli_real_escape_string($conn, $data['email'] ?? '');
