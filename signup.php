@@ -1,9 +1,7 @@
 <?php
-// 1. Enable Error Reporting
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 
-include 'db_connect.php';
+include 'includes/db_connect.php';
+include 'includes/check_authorization.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
@@ -24,29 +22,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         die("Error: Passwords do not match. <a href='signup.php'>Go Back</a>");
     }
 
-    // --- NEW SECTION: DUPLICATE CHECK ---
-    
-    // Check if Email already exists
-    $check_email = "SELECT * FROM users WHERE email = '$email'";
+    // --- DUPLICATE CHECK ---
+    $check_email = "SELECT email FROM users WHERE email = '$email'";
     $result = mysqli_query($conn, $check_email);
 
     if (mysqli_num_rows($result) > 0) {
-        // ERROR: Email found! Stop everything.
-    echo "<script>
+        echo "<script>
                 alert('This email is already registered. Please use a different email or Log In.');
                 window.history.back(); 
-              </script>";
+            </script>";
         exit();
     }
     
-    // --- END NEW SECTION ---
+    // --- PASSWORD HASHING (Crucial for Security) ---
+    // This transforms "Password123" into a long random string that fits in your VARCHAR(255)
+    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-    // 3. Insert Data (Only happens if email check passed)
-    $sql = "INSERT INTO users (full_name, phone_number, email, password) 
-            VALUES ('$name', '$phone', '$email', '$password')";
+    // 3. Insert Data 
+    // Matching your table columns: full_name, email, password, phone_number
+    $sql = "INSERT INTO users (full_name, email, password, phone_number, role) 
+            VALUES ('$name', '$email', '$hashed_password', '$phone', 'member')";
 
     if (mysqli_query($conn, $sql)) {
-        // Success
         echo "<script>
                 sessionStorage.setItem('signupSuccess', 'true');
                 window.location.href = 'login.php';
@@ -57,9 +54,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     mysqli_close($conn);
-
 }
-
 ?>
 
 <!DOCTYPE html>
