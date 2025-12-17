@@ -3,7 +3,7 @@
 // REGULAR EXPRESSIONS (Global access)
 const phonePattern = /^0[1-9]\d{8,9}$/;
 const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+const passwordPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+[\]{};':"\\|,.<>/?])(?=\S+$).{6,8}$/;
 
 
 // SIGNUP VALIDATION (Using Event Listener)
@@ -53,8 +53,9 @@ if (signupForm) {
       f.password.focus();
       return;
     }
+    
     if (!passwordPattern.test(f.password.value)) {
-      alert("Password must be at least 8 characters with letters and numbers");
+      alert("Password must be 6-8 characters, include 1 uppercase, 1 number, 1 special character, and no spaces.");
       f.password.focus();
       return;
     }
@@ -78,7 +79,7 @@ if (signupForm) {
     }
 
     // SUCCESS: Allow the form to submit to register.php
-    f.submit(); 
+    f.submit();
   });
 }
 
@@ -105,7 +106,7 @@ if (resetForm && resetBtn) {
     // 2. PASSWORD STRENGTH CHECK
     if (!passwordPattern.test(password)) {
       alert(
-        "Password must be at least 8 characters and contain letters and numbers"
+        "Password must be 6-8 characters and include at least one uppercase letter, one number, and one special character (no spaces)."
       );
       passwordInput.focus();
       return;
