@@ -40,6 +40,6 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role
         <p>Hello, <strong><?php echo ($_SESSION['full_name']); ?></strong></p>
         <a href="../logout.php" class="logout-link" id="profileLogoutBtn">Log Out</a>
     </div>
-    <script src="js/userAuthLogOut.js"></script>
+    <script src="../js/userAuthLogOut.js"></script>
 </body>
 </html>
