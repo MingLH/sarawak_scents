@@ -1,7 +1,8 @@
 <?php
 // send_otp.php
 header('Content-Type: application/json');
-include 'db_connect.php';
+include 'includes/db_connect.php';
+include 'includes/check_authorization.php';
 
 // Get JSON input from the JavaScript fetch request
 $data = json_decode(file_get_contents("php://input"), true);
@@ -28,9 +29,9 @@ if (mysqli_num_rows($result) > 0) {
 
         // NOTE: We send the OTP in the 'debug' field so you can see it in the Console!
         echo json_encode([
-            'status' => 'success', 
+            'status' => 'success',
             'message' => 'OTP sent successfully',
-            'debug_otp' => $otp 
+            'debug_otp' => $otp
         ]);
     } else {
         echo json_encode(['status' => 'error', 'message' => 'Database error saving OTP']);
