@@ -1,9 +1,10 @@
 <?php
-include 'db_connect.php';
+include 'includes/db_connect.php';
+include 'includes/check_authorization.php';
 
 if(isset($_GET["userid"]))
 {
-    $sql = "Insert into users (fullname, phone, email, password_hash) 
+    $sql = "Insert into users (fullname, phone, email, password_hash)
     values ('".$_GET["name"]."','".$_GET["phone"]."','".$_GET["email"]."','".$_GET["password_hash"]."')";
 
 if (mysqli_query($conn, $sql)) {
