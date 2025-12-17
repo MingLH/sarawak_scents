@@ -1,5 +1,5 @@
 <?php
-session_start();
+include 'includes/check_authorization.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -12,7 +12,7 @@ session_start();
 </head>
 
 <body>
-    <a href="login.php" class="back-link"><- <span class="back-text">Back</span></a>
+    <a href="login.php" class="back-link" id="backBtn"><- <span class="back-text">Back</span></a>
 
     <div class="login-container">
         <div class="card">
@@ -63,7 +63,7 @@ session_start();
             </form>
         </div>
     </div>
-    <script src="js/userAuthfunction.js"></script> 
+    <script src="js/userAuthfunction.js"></script>
 </body>
 
 </html>
