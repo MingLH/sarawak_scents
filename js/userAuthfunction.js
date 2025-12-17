@@ -106,8 +106,8 @@ function sendOtpRequest(emailValue, originalBtnText) {
             // Start the visual countdown on the first successful send/resend
             startResendCountdown();
 
-            console.log("✅ OTP RECEIVED (Debug):", data.debug_otp);
-            alert("Code sent! (Check your Console F12 if email not received)");
+            console.log("OTP RECEIVED (Debug):", data.debug_otp);
+            alert("Code sent! Please check your email.");
             
         } else {
             // ERROR: Email not found, etc.
