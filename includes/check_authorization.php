@@ -1,10 +1,15 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
-//to prevent user/admin from accesing page when they're not logging in
+// If the user is ALREADY logged in, they shouldn't be here
 if (isset($_SESSION['user_id'])) {
-    $target = ($_SESSION['role'] === 'admin') ? 'admin/admin_dashboard.php' : 'index.php';
-    header("Location: $target");
+    if ($_SESSION['role'] === 'admin') {
+        header("Location: admin/admin_dashboard.php");
+    } else {
+        header("Location: index.php");
+    }
     exit();
 }
 ?>
