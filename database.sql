@@ -9,7 +9,8 @@ CREATE TABLE IF NOT EXISTS users (
     full_name VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL, 
-    phone_number VARCHAR(20), 
+    phone_number VARCHAR(20),
+    otp_code VARCHAR(10) DEFAULT NULL,
     role ENUM('member', 'admin') DEFAULT 'member',
     address TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
