@@ -107,7 +107,7 @@ function sendOtpRequest(emailValue, originalBtnText) {
             startResendCountdown();
 
             console.log("OTP RECEIVED (Debug):", data.debug_otp);
-            alert("Code sent! Please check your email.");
+            alert("Code sent! Please check your Console F12)");
             
         } else {
             // ERROR: Email not found, etc.
@@ -195,6 +195,5 @@ document.querySelectorAll(".otp-boxes input").forEach((input, index, inputs) => 
 
 document.getElementById("backBtn").addEventListener("click", function (e) {
     e.preventDefault();
-    // This allows the user to go back to login.html from the reset page
-    history.back(); 
+    history.back();
 });
