@@ -1,6 +1,7 @@
 //THIS FILE IS FOR USER AUTHETICATION AND MODEL BOX (WARNING POP UP)
 
 // REGULAR EXPRESSIONS (Global access)
+const namePattern = /^[a-zA-Z\s]+$/; // Allows A-Z, a-z, and spaces only
 const phonePattern = /^0[1-9]\d{8,9}$/;
 const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
 const passwordPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+[\]{};':"\\|,.<>/?])(?=\S+$).{6,8}$/;
@@ -19,6 +20,11 @@ if (signupForm) {
     // 1. FULL NAME CHECK
     if (f.name.value.trim() === "") {
       alert("Full Name is required");
+      f.name.focus();
+      return;
+    }
+    if (!namePattern.test(f.name.value)) {
+      alert("Full Name must only contain alphabets (A-Z) and spaces. Numbers and symbols are not allowed.");
       f.name.focus();
       return;
     }
@@ -53,7 +59,7 @@ if (signupForm) {
       f.password.focus();
       return;
     }
-    
+
     if (!passwordPattern.test(f.password.value)) {
       alert("Password must be 6-8 characters, include 1 uppercase, 1 number, 1 special character, and no spaces.");
       f.password.focus();
