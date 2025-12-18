@@ -48,6 +48,10 @@ include 'includes/check_authorization.php';
                         <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" data-otp-index="5" />
                     </div>
 
+                    <p class="developer-debug-link">
+                        Developer Hint: <a href="otp_tutorial.html">How to view the OTP code</a>
+                    </p>
+
                     <p class="resend">
                         Didn’t receive code?
                         <a href="#" id="resendCode">Resend</a>
