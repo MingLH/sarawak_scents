@@ -1,4 +1,4 @@
-</div> <footer style="background-color: #064e3b; color: white; padding: 40px 20px 20px 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+</div> <footer style="background-color: #064e3b; color: white; padding: 40px 20px 20px 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; width: 97%;">
         <div style="max-width: 1100px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 40px;">
             
             <div style="flex: 1; min-width: 250px;">

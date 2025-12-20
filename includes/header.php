@@ -15,7 +15,7 @@ if (session_status() === PHP_SESSION_NONE) {
 </head>
 <body>
 
-    <nav class="navbar" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; background-color: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+    <nav class="navbar" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; background-color: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); width: 97%">
         
         <div class="logo">
             <a href="index.php" style="text-decoration: none; font-size: 1.5rem; font-weight: bold; color: #2c3e50;">
@@ -34,10 +34,7 @@ if (session_status() === PHP_SESSION_NONE) {
                     // Calculate the number of items in the cart
                     $cart_count = 0;
                     if (isset($_SESSION['cart']) && !empty($_SESSION['cart'])) {
-                        // Option A: Count unique products
-                        // $cart_count = count($_SESSION['cart']); 
-
-                        // Option B: Count total quantity of all items (Recommended)
+                        // Count total quantity of all items 
                         foreach ($_SESSION['cart'] as $item) {
                             $cart_count += $item['quantity'];
                         }
@@ -80,4 +77,4 @@ if (session_status() === PHP_SESSION_NONE) {
         </ul>
     </nav>
 
-    <div class="main-wrapper" style="min-height: 80vh; padding: 20px;">
+    <div class="main-wrapper" style="min-height: 80vh; padding: 20px; width: 100%;">
