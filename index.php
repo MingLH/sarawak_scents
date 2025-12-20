@@ -16,7 +16,7 @@ $fullName = isset($_SESSION['full_name']) ? $_SESSION['full_name'] : 'Visitor';
                 <p>You are currently logged in as <strong><?php echo htmlspecialchars($fullName); ?></strong>.</p>
                 <p>This is the public front-end. To manage products and orders, please use the dashboard.</p>
                 <br>
-                <a href="admin/admin_dashboard.php" style="background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                <a href="admin/dashboard.php" style="background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">
                     Go to Admin Dashboard &rarr;
                 </a>
             </section>
