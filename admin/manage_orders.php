@@ -49,11 +49,15 @@ $query = "SELECT o.order_id, o.user_id, o.total_amount, o.order_date, o.status, 
 $result = mysqli_query($conn, $query);
 
 if (!$result) {
-    die("Query failed: " . mysqli_error($conn));
+    echo "<div class='error'>Query failed: " . mysqli_error($conn) . "</div>";
+    die();
 }
 
 // Count total orders
 $totalOrders = mysqli_num_rows($result);
+
+// Debug: Check if query returns any results
+// echo "<p>Debug: Total rows returned: " . $totalOrders . "</p>";
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -98,22 +102,24 @@ $totalOrders = mysqli_num_rows($result);
     <p><strong>Total Orders: <?php echo $totalOrders; ?></strong></p>
     
     <!-- Orders table -->
-    <?php if ($totalOrders == 0): ?>
-        <p>No orders found.</p>
-    <?php else: ?>
-        <table>
-            <thead>
+    <table>
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Customer Name</th>
+                <th>User ID</th>
+                <th>Order Date</th>
+                <th>Total Amount (RM)</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php if ($totalOrders == 0): ?>
                 <tr>
-                    <th>Order ID</th>
-                    <th>Customer Name</th>
-                    <th>User ID</th>
-                    <th>Order Date</th>
-                    <th>Total Amount (RM)</th>
-                    <th>Status</th>
-                    <th>Action</th>
+                    <td colspan="7" style="text-align: center;">No orders found.</td>
                 </tr>
-            </thead>
-            <tbody>
+            <?php else: ?>
                 <?php while ($order = mysqli_fetch_assoc($result)): ?>
                     <tr class="status-<?php echo strtolower($order['status']); ?>">
                         <td><?php echo htmlspecialchars($order['order_id']); ?></td>
@@ -138,13 +144,12 @@ $totalOrders = mysqli_num_rows($result);
                         </td>
                     </tr>
                 <?php endwhile; ?>
-            </tbody>
-        </table>
-    <?php endif; ?>
-
-<?php
+            <?php endif; ?>
+        </tbody>
+    </table>
+    <?php
 // Close database connection
 mysqli_close($conn);
-?>
+    ?>
 </body>
 </html>
