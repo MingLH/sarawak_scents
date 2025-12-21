@@ -34,7 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             // 2. Determine redirect destination based on role
             $redirectPage = 'index.php'; // Default for members
             if ($row['role'] === 'admin') {
-                $redirectPage = 'admin/admin_dashboard.php';
+                $redirectPage = 'admin/dashboard.php';
             }
 
             // 3. Success Alert and Redirect
