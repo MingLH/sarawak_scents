@@ -7,14 +7,16 @@ $filter = $_GET['filter'] ?? 'all';
 
 // Function to get filtered transactions from database
 function getFilteredTransactions($conn, $filter) {
-    // Base query - only from transactions table
+    // Base query - join transactions with orders to get total_amount
     $query = "SELECT 
                 t.transaction_id,
                 t.order_id,
                 t.transaction_date,
                 t.payment_method,
-                t.payment_status
-              FROM transactions t";
+                t.payment_status,
+                o.total_amount
+              FROM transactions t
+              INNER JOIN orders o ON t.order_id = o.order_id";
     
     // Add WHERE clause for filter
     $query .= " WHERE 1=1";
@@ -58,6 +60,15 @@ function getFilteredTransactions($conn, $filter) {
 
 // Get filtered transactions
 $filteredTransactions = getFilteredTransactions($conn, $filter);
+
+// Calculate total amount for the filtered transactions
+$totalAmount = 0;
+foreach ($filteredTransactions as $transaction) {
+    // Only count successful transactions
+    if ($transaction['payment_status'] === 'Success') {
+        $totalAmount += $transaction['total_amount'];
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -88,7 +99,7 @@ $filteredTransactions = getFilteredTransactions($conn, $filter);
     <div class="nav">
         <button onclick="window.location.href='add_product.php'">Add Product</button>
         <button onclick="window.location.href='manage_orders.php'">Manage Orders</button>
-        <button onclick="window.location.href='members_list.php'">Members List</button>
+        <button onclick="window.location.href='member_list.php'">Members List</button>
     </div>
 
     <h2>Transaction Report</h2>
@@ -105,6 +116,9 @@ $filteredTransactions = getFilteredTransactions($conn, $filter);
         <button type="submit">Apply Filter</button>
     </form>
 
+    <!-- Display total amount (only successful transactions) -->
+    <p><strong>Total Amount: RM <?php echo number_format($totalAmount, 2); ?></strong></p>
+
     <!-- Transaction table -->
     <table border="1">
         <thead>
@@ -112,6 +126,7 @@ $filteredTransactions = getFilteredTransactions($conn, $filter);
                 <th>Transaction ID</th>
                 <th>Order ID</th>
                 <th>Date</th>
+                <th>Amount (RM)</th>
                 <th>Payment Method</th>
                 <th>Status</th>
             </tr>
@@ -119,7 +134,7 @@ $filteredTransactions = getFilteredTransactions($conn, $filter);
         <tbody>
             <?php if (empty($filteredTransactions)): ?>
                 <tr>
-                    <td colspan="5" style="text-align: center;">No transactions found for the selected filter.</td>
+                    <td colspan="6" style="text-align: center;">No transactions found for the selected filter.</td>
                 </tr>
             <?php else: ?>
                 <?php foreach ($filteredTransactions as $transaction): ?>
@@ -127,6 +142,7 @@ $filteredTransactions = getFilteredTransactions($conn, $filter);
                         <td><?php echo htmlspecialchars($transaction['transaction_id']); ?></td>
                         <td><?php echo htmlspecialchars($transaction['order_id']); ?></td>
                         <td><?php echo date('d-m-Y H:i', strtotime($transaction['transaction_date'])); ?></td>
+                        <td>RM <?php echo number_format($transaction['total_amount'], 2); ?></td>
                         <td><?php echo htmlspecialchars($transaction['payment_method'] ?? 'N/A'); ?></td>
                         <td class="<?php echo strtolower($transaction['payment_status']); ?>">
                             <?php echo htmlspecialchars($transaction['payment_status']); ?>
