@@ -99,7 +99,7 @@ foreach ($filteredTransactions as $transaction) {
     <div class="nav">
         <button onclick="window.location.href='add_product.php'">Add Product</button>
         <button onclick="window.location.href='manage_orders.php'">Manage Orders</button>
-        <button onclick="window.location.href='member_list.php'">Members List</button>
+        <button onclick="window.location.href='members_list.php'">Members List</button>
     </div>
 
     <h2>Transaction Report</h2>
