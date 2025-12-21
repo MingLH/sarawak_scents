@@ -1,106 +1,63 @@
 <?php
-// Placeholder transaction data array (simulates database table)
-$transactions = [
-    [
-        'id' => 1,
-        'date' => '2025-12-01',
-        'amount' => 100.50,
-        'description' => 'order 1'
-    ],
-    [
-        'id' => 2,
-        'date' => '2025-12-02',
-        'amount' => 250.00,
-        'description' => 'order 2'
-    ],
-    [
-        'id' => 3,
-        'date' => '2025-12-03',
-        'amount' => 75.25,
-        'description' => '0rder 3'
-    ],
-    [
-        'id' => 4,
-        'date' => '2025-10-10',
-        'amount' => 150.00,
-        'description' => 'order 4'
-    ],
-    [
-        'id' => 5,
-        'date' => '2025-10-15',
-        'amount' => 200.75,
-        'description' => 'order 5'
-    ],
-    [
-        'id' => 6,
-        'date' => '2025-09-20',
-        'amount' => 50.00,
-        'description' => 'order 6'
-    ],
-    [
-        'id' => 7,
-        'date' => '2025-09-25',
-        'amount' => 300.00,
-        'description' => 'order 7'
-    ],
-    [
-        'id' => 8,
-        'date' => '2025-08-15',
-        'amount' => 125.50,
-        'description' => 'order 8'
-    ]
-];
+// Include database connection
+include $_SERVER['DOCUMENT_ROOT'] . '/sarawak_scents/includes/db_connect.php';
 
 // Get filter period from GET parameter, default to 'all'
 $filter = $_GET['filter'] ?? 'all';
 
-// Function to filter transactions based on period
-function filterTransactions($transactions, $filter) {
-    $filtered = [];
-    $now = new DateTime();
-
-    foreach ($transactions as $transaction) {
-        $transDate = new DateTime($transaction['date']);
-
-        switch ($filter) {
-            case 'daily':
-                // Transactions from today
-                if ($transDate->format('Y-m-d') === $now->format('Y-m-d')) {
-                    $filtered[] = $transaction;
-                }
-                break;
-            case 'weekly':
-                // Transactions from the last 7 days
-                $weekAgo = clone $now;
-                $weekAgo->modify('-7 days');
-                if ($transDate >= $weekAgo) {
-                    $filtered[] = $transaction;
-                }
-                break;
-            case 'monthly':
-                // Transactions from the current month
-                if ($transDate->format('Y-m') === $now->format('Y-m')) {
-                    $filtered[] = $transaction;
-                }
-                break;
-            default:
-                // No filter, include all
-                $filtered[] = $transaction;
-                break;
-        }
+// Function to get filtered transactions from database
+function getFilteredTransactions($conn, $filter) {
+    // Base query - only from transactions table
+    $query = "SELECT 
+                t.transaction_id,
+                t.order_id,
+                t.transaction_date,
+                t.payment_method,
+                t.payment_status
+              FROM transactions t";
+    
+    // Add WHERE clause for filter
+    $query .= " WHERE 1=1";
+    
+    // Add date filter based on selection
+    switch ($filter) {
+        case 'daily':
+            // Transactions from today
+            $query .= " AND DATE(t.transaction_date) = CURDATE()";
+            break;
+        case 'weekly':
+            // Transactions from the last 7 days
+            $query .= " AND t.transaction_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)";
+            break;
+        case 'monthly':
+            // Transactions from the current month
+            $query .= " AND YEAR(t.transaction_date) = YEAR(CURDATE()) 
+                       AND MONTH(t.transaction_date) = MONTH(CURDATE())";
+            break;
+        default:
+            // No additional filter, show all
+            break;
     }
-
-    return $filtered;
+    
+    // Order by date descending (newest first)
+    $query .= " ORDER BY t.transaction_date DESC";
+    
+    $result = mysqli_query($conn, $query);
+    
+    if (!$result) {
+        die("Query failed: " . mysqli_error($conn));
+    }
+    
+    $transactions = [];
+    while ($row = mysqli_fetch_assoc($result)) {
+        $transactions[] = $row;
+    }
+    
+    return $transactions;
 }
 
-// Apply filter to transactions
-$filteredTransactions = filterTransactions($transactions, $filter);
-
-// Calculate total amount for the filtered transactions
-$totalAmount = 0;
-foreach ($filteredTransactions as $transaction) {
-    $totalAmount += $transaction['amount'];
-}
+// Get filtered transactions
+$filteredTransactions = getFilteredTransactions($conn, $filter);
 ?>
 
 <!DOCTYPE html>
@@ -118,7 +75,9 @@ foreach ($filteredTransactions as $transaction) {
         tr:hover { background-color: #f5f5f5; }
         .nav { margin: 20px; text-align: center; }
         .print-btn { text-align: center; margin-top: 20px;}
-        .header { margin: 20px; text-align: center; }   
+        .header { margin: 20px; text-align: center; }
+        .success { color: green; font-weight: bold; }
+        .failed { color: red; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -146,31 +105,32 @@ foreach ($filteredTransactions as $transaction) {
         <button type="submit">Apply Filter</button>
     </form>
 
-    <!-- Display total amount -->
-    <p><strong>Total Amount: $<?php echo number_format($totalAmount, 2); ?></strong></p>
-
     <!-- Transaction table -->
     <table border="1">
         <thead>
             <tr>
-                <th>ID</th>
+                <th>Transaction ID</th>
+                <th>Order ID</th>
                 <th>Date</th>
-                <th>Amount</th>
-                <th>Description</th>
+                <th>Payment Method</th>
+                <th>Status</th>
             </tr>
         </thead>
         <tbody>
             <?php if (empty($filteredTransactions)): ?>
                 <tr>
-                    <td colspan="4">No transactions found for the selected filter.</td>
+                    <td colspan="5" style="text-align: center;">No transactions found for the selected filter.</td>
                 </tr>
             <?php else: ?>
                 <?php foreach ($filteredTransactions as $transaction): ?>
                     <tr>
-                        <td><?php echo htmlspecialchars($transaction['id']); ?></td>
-                        <td><?php echo htmlspecialchars($transaction['date']); ?></td>
-                        <td>$<?php echo number_format($transaction['amount'], 2); ?></td>
-                        <td><?php echo htmlspecialchars($transaction['description']); ?></td>
+                        <td><?php echo htmlspecialchars($transaction['transaction_id']); ?></td>
+                        <td><?php echo htmlspecialchars($transaction['order_id']); ?></td>
+                        <td><?php echo date('d-m-Y H:i', strtotime($transaction['transaction_date'])); ?></td>
+                        <td><?php echo htmlspecialchars($transaction['payment_method'] ?? 'N/A'); ?></td>
+                        <td class="<?php echo strtolower($transaction['payment_status']); ?>">
+                            <?php echo htmlspecialchars($transaction['payment_status']); ?>
+                        </td>
                     </tr>
                 <?php endforeach; ?>
             <?php endif; ?>
@@ -181,5 +141,10 @@ foreach ($filteredTransactions as $transaction) {
     <div class="print-btn">
         <button onclick="window.print()">Download PDF (Print)</button>
     </div>
+
+<?php
+// Close database connection
+mysqli_close($conn);
+?>
 </body>
 </html>
