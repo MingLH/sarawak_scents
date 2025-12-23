@@ -1,4 +1,7 @@
 <?php
+// Set Timezone to Malaysia
+date_default_timezone_set('Asia/Kuala_Lumpur');
+
 $servername = "localhost";
 $username = "root";
 $password = "";
