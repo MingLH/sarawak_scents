@@ -35,11 +35,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     
     // --- PASSWORD HASHING (Crucial for Security) ---
-    // This transforms "Password123" into a long random string that fits in your VARCHAR(255)
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
     // 3. Insert Data 
-    // Matching your table columns: full_name, email, password, phone_number
     $sql = "INSERT INTO users (full_name, email, password, phone_number, role) 
             VALUES ('$name', '$email', '$hashed_password', '$phone', 'member')";
 
@@ -61,22 +59,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8" />
-
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Create new account</title>
-
-
     <link rel="stylesheet" href="css/style.css" />
 </head>
 
 <body>
 
-    <a href="#" class="back-link" id="backBtn"><- <span class="back-text">Back</span>
-    </a>
-
+    <a href="index.php" class="back-link" id="backBtn"><- <span class="back-text">Back</span></a>
 
     <div class="signup-container">
         <div class="card">
@@ -119,23 +110,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     Already have an account? <a href="login.php">Log In</a>
                 </p>
 
-
             </form>
-
         </div>
     </div>
 
     <div class="modal" id="exitModal">
         <div class="modal-box">
-
             <button class="modal-close" id="closeModal">x</button>
-
             <h3>Leave this page?</h3>
-            <p>
-                <br>
-                All unsaved changes will be gone
-            </p>
-
+            <p><br>All unsaved changes will be gone</p>
             <div class="modal-actions">
                 <button class="btn-secondary" id="stayBtn">Stay</button>
                 <button class="btn-primary" id="leaveBtn">Continue</button>
@@ -144,6 +127,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
 
     <script src="js/userAuth.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const leaveBtn = document.getElementById('leaveBtn');
+            if(leaveBtn) {
+                leaveBtn.addEventListener('click', function() {
+                    window.location.href = 'index.php';
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>

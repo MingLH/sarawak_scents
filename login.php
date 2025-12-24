@@ -70,11 +70,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 
 <body>
+    <a href="index.php" class="back-link" style="position: absolute; top: 20px; left: 20px; text-decoration: none; color: #333; font-weight: bold;">
+        <- <span class="back-text">Back</span>
+    </a>
+
     <div class="login-container">
 
         <?php if (isset($_SESSION['error_message'])): ?>
-            <div
-                style="background-color: #fff3cd; color: #856404; padding: 15px; text-align: center; border: 1px solid #ffeeba; margin-bottom: 20px; border-radius: 5px;">
+            <div style="background-color: #fff3cd; color: #856404; padding: 15px; text-align: center; border: 1px solid #ffeeba; margin-bottom: 20px; border-radius: 5px;">
                 <?php
                 echo htmlspecialchars($_SESSION['error_message']);
                 unset($_SESSION['error_message']);
@@ -118,7 +121,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     <script>
         window.addEventListener("DOMContentLoaded", () => {
-
             if (sessionStorage.getItem("passwordResetSuccess")) {
                 alert("Password reset successfully. Please sign in.");
                 sessionStorage.removeItem("passwordResetSuccess");
@@ -128,12 +130,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 alert("Account created successfully. Please sign in.");
                 sessionStorage.removeItem("signupSuccess");
             }
-
         });
-
-
     </script>
 
 </body>
-
 </html>
