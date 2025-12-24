@@ -13,7 +13,10 @@ html {
 body {
     font-family: system-ui, sans-serif;
     min-height: 100vh;
-    background: linear-gradient(135deg, #faf9f6, #f0ede8);
+    background-image: url('../assets/images/bario.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     display: flex;
     flex-direction: column;
     justify-content: center;
