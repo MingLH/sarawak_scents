@@ -1,4 +1,13 @@
 <?php
+// Load PHPMailer classes
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+require 'includes/PHPMailer/Exception.php';
+require 'includes/PHPMailer/PHPMailer.php';
+require 'includes/PHPMailer/SMTP.php';
+require 'includes/config.php'; // Load the secret variables
+
 session_start();
 include 'includes/db_connect.php';
 
@@ -76,14 +85,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         mysqli_query($conn, "INSERT INTO transactions (order_id, payment_method, payment_status, transaction_date) 
                              VALUES ($order_id, '$payment_method', 'Success', NOW())");
         
-        // === NEW: EMAIL NOTIFICATION (Requirement 4.v) ===
-        $to = $user_data['email'];
-        $subject = "Order Confirmation - Sarawak Scents";
-        $message = "Thank you for your order #$order_id!\nTotal: RM $total_amount\n\nYour items will be shipped to:\n$address";
-        $headers = "From: no-reply@sarawakscents.com";
-        
-        // Try to send email (suppress errors with @ if local server fails)
-        @mail($to, $subject, $message, $headers);
+        // === SEND EMAIL VIA GMAIL SMTP ===
+        $mail = new PHPMailer(true);
+
+        try {
+            // Server settings
+            $mail->isSMTP();
+            // ENABLE DEBUGGING (Remove this after fixing!)
+            $mail->SMTPDebug = 0; // Turn off debug output (Silence is golden)
+            $mail->Debugoutput = 'html';
+            $mail->Host       = 'smtp.gmail.com';
+            $mail->SMTPAuth   = true;
+            $mail->Username   = SMTP_EMAIL;
+            $mail->Password   = SMTP_PASSWORD;  
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port       = 587;
+
+            // === FIX: BYPASS SSL CERTIFICATE CHECK ===
+            $mail->SMTPOptions = array(
+                'ssl' => array(
+                    'verify_peer' => false,
+                    'verify_peer_name' => false,
+                    'allow_self_signed' => true
+                )
+            );
+
+            // Recipients
+            $mail->setFrom(SMTP_EMAIL, 'Sarawak Scents');
+            $mail->addAddress($user_data['email'], $user_data['full_name']);
+
+            // Content
+            $mail->isHTML(true);
+            $mail->Subject = "Order Confirmation - Order #$order_id";
+            $mail->Body    = "
+                <h2>Thank you for your order!</h2>
+                <p>Hi <b>{$user_data['full_name']}</b>,</p>
+                <p>We have received your order.</p>
+                <table style='width: 100%; border-collapse: collapse;'>
+                    <tr><td><strong>Order ID:</strong></td><td>#$order_id</td></tr>
+                    <tr><td><strong>Total Amount:</strong></td><td>RM " . number_format($total_amount, 2) . "</td></tr>
+                    <tr><td><strong>Date:</strong></td><td>" . date('d M Y, h:i A') . "</td></tr>
+                </table>
+                <p>We will ship your items to:<br>
+                {$address}</p>
+                <p>Thank you for shopping with Sarawak Scents!</p>
+            ";
+            
+            // Plain text version for non-HTML mail clients
+            $mail->AltBody = "Thank you for your order #$order_id. Total: RM $total_amount";
+            
+            $mail->send();
+        } catch (Exception $e) {
+            // If email fails, we still want the order to complete, so we just log the error or ignore it
+            // echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+            // exit();
+        }
 
         // E. EMPTY THE CART
         unset($_SESSION['cart']);

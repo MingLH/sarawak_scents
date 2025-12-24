@@ -84,9 +84,9 @@ INSERT INTO products (name, description, price, image, category_id) VALUES
 -- Users (Admin1$ and User1$)
 INSERT INTO users (full_name, email, password, phone_number, role, address, created_at) VALUES
 ('Admin Sarawak', 'admin@sarawakscents.com', '$2y$10$T5J1GAOBnoCAlfrCu/G30.5XLxOZmxbFspO9q5K6Wq/CwcZAhTlte', '0123456789', 'admin', 'HQ Kuching', '2025-11-01 10:00:00'),
-('Ali Ahmad', 'ali@gmail.com', '$2y$10$lB5Phib.RF7Ag0z/kZ5VC.0hbnPthW8w/sCeb5qAlwouJLvzpwOBO', '0121111111', 'member', 'No 5, Petra Jaya', '2025-12-01 10:00:00'),
-('Siti Sarah', 'siti@gmail.com', '$2y$10$lB5Phib.RF7Ag0z/kZ5VC.0hbnPthW8w/sCeb5qAlwouJLvzpwOBO', '0122222222', 'member', 'Lot 88, Tabuan Jaya', '2025-12-05 14:30:00'),
-('John Tan', 'john@gmail.com', '$2y$10$lB5Phib.RF7Ag0z/kZ5VC.0hbnPthW8w/sCeb5qAlwouJLvzpwOBO', '0123333333', 'member', 'Green Road', '2025-12-10 09:15:00');
+('Ali Ahmad', 'user@example.com', '$2y$10$lB5Phib.RF7Ag0z/kZ5VC.0hbnPthW8w/sCeb5qAlwouJLvzpwOBO', '0121111111', 'member', 'No 5, Petra Jaya', '2025-12-01 10:00:00'),
+('Siti Sarah', 'user@example.com', '$2y$10$lB5Phib.RF7Ag0z/kZ5VC.0hbnPthW8w/sCeb5qAlwouJLvzpwOBO', '0122222222', 'member', 'Lot 88, Tabuan Jaya', '2025-12-05 14:30:00'),
+('John Tan', 'user@example.com', '$2y$10$lB5Phib.RF7Ag0z/kZ5VC.0hbnPthW8w/sCeb5qAlwouJLvzpwOBO', '0123333333', 'member', 'Green Road', '2025-12-10 09:15:00');
 
 -- Orders (History for Charts)
 INSERT INTO orders (user_id, total_amount, status, order_date) VALUES
