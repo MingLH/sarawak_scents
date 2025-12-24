@@ -39,15 +39,28 @@ include 'includes/header.php';
         }
     </script>
 
-    <div style="background: white; border-left: 5px solid #064e3b; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 40px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+    <div style="background: white; border-left: 5px solid #064e3b; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 40px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px;">
+        
         <div>
-            <h1 style="margin: 0; color: #333;">Welcome, <?php echo htmlspecialchars($user['full_name']); ?></h1>
-            <a href="edit_profile.php">Edit Profile</a>
-            <p style="margin: 5px 0 0 0; color: #666;"><?php echo htmlspecialchars($user['email']); ?></p>
+            <h1 style="margin: 0 0 5px 0; color: #333;">Welcome, <?php echo htmlspecialchars($user['full_name']); ?></h1>
+            
+            <div style="color: #666; font-size: 0.95rem; margin-bottom: 15px;">
+                <div style="margin-bottom: 3px;">📧 <?php echo htmlspecialchars($user['email']); ?></div>
+                <div>📞 <?php echo htmlspecialchars($user['phone_number']); ?></div>
+            </div>
+
+            <a href="edit_profile.php" style="display: inline-block; background: #064e3b; color: white; padding: 8px 20px; border-radius: 5px; text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: opacity 0.3s;">
+                Edit Profile
+            </a>
+            
+            <a href="logout.php" id="profileLogoutBtn" onclick="return confirm('Are you sure?');" style="display: inline-block; background: #fee2e2; color: #991b1b; padding: 8px 20px; border-radius: 5px; text-decoration: none; font-weight: 600; font-size: 0.9rem; margin-left: 10px;">
+                Logout
+            </a>
         </div>
-        <div style="text-align: right;">
+
+        <div style="text-align: right; align-self: center;">
             <div style="font-size: 0.9rem; color: #888; margin-bottom: 5px;">Member since</div>
-            <div style="font-weight: bold; color: #064e3b;"><?php echo date('F Y', strtotime($user['created_at'])); ?></div>
+            <div style="font-size: 1.2rem; font-weight: bold; color: #064e3b;"><?php echo date('F Y', strtotime($user['created_at'])); ?></div>
         </div>
     </div>
 
@@ -63,12 +76,12 @@ include 'includes/header.php';
                         <th style="padding: 15px; text-align: left; color: #374151;">Method</th>
                         <th style="padding: 15px; text-align: left; color: #374151;">Total</th>
                         <th style="padding: 15px; text-align: center; color: #374151;">Status</th>
-                        <th style="padding: 15px; text-align: left; color: #374151;">Receipt</th>
+                        <th style="padding: 15px; text-align: center; color: #374151;">Receipt</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php while ($ord = mysqli_fetch_assoc($orders)): ?>
-                        <tr style="border-bottom: 1px solid #f3f4f6; background: #f9fafb;">
+                        <tr style="border-bottom: 1px solid #f3f4f6; background: #fff;">
                             <td style="padding: 15px; font-weight: bold; color: #333;">
                                 #<?php echo $ord['order_id']; ?>
                             </td>
@@ -91,8 +104,11 @@ include 'includes/header.php';
                                     <?php echo $ord['status']; ?>
                                 </span>
                             </td>
-                            <td>
-                                <a href="receipt.php?order_id=<?php echo $ord['order_id']; ?>">View Receipt</a>
+                            <td style="padding: 15px; text-align: center;">
+                                <a href="receipt.php?order_id=<?php echo $ord['order_id']; ?>" 
+                                   style="display: inline-block; border: 1px solid #064e3b; color: #064e3b; padding: 6px 14px; border-radius: 4px; text-decoration: none; font-size: 0.85rem; font-weight: 600; transition: all 0.2s;">
+                                    View Receipt
+                                </a>
                             </td>
                         </tr>
                     <?php endwhile; ?>
