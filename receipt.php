@@ -1,171 +1,92 @@
 <?php
 session_start();
-require_once 'includes/db_connect.php';
+include 'includes/db_connect.php';
 
-/* =========================
-    Auth check
-========================= */
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit;
-}
+// Security: User must be logged in
+if (!isset($_SESSION['user_id'])) { header("Location: login.php"); exit(); }
 
-/* =========================
-Prevent duplicates
-========================= */
-if (isset($_SESSION['processing_payment']) && $_SESSION['processing_payment'] === true) {
-    die("Payment is already being processed.");
-}
-$_SESSION['processing_payment'] = true;
-
+$order_id = isset($_GET['order_id']) ? intval($_GET['order_id']) : 0;
 $user_id = $_SESSION['user_id'];
-$cart = $_SESSION['cart'] ?? [];
 
-if (empty($cart)) {
-    unset($_SESSION['processing_payment']);
-    die("Cart is empty.");
-}
+// Fetch Order Details (Secure: Only allow if order belongs to this user)
+$sql = "SELECT o.*, u.full_name, u.email, u.address 
+        FROM orders o 
+        JOIN users u ON o.user_id = u.user_id 
+        WHERE o.order_id = $order_id AND o.user_id = $user_id";
+$order_res = mysqli_query($conn, $sql);
+$order = mysqli_fetch_assoc($order_res);
 
-/* =========================
-   Fetch user address
-========================= */
-$userQuery = $conn->prepare("SELECT full_name, email, address FROM users WHERE user_id = ?");
-$userQuery->bind_param("i", $user_id);
-$userQuery->execute();
-$user = $userQuery->get_result()->fetch_assoc();
+if (!$order) { die("Receipt not found or access denied."); }
 
-$delivery_address = $user['address'] ?? '';
-
-/* =========================
-   Calculate totals
-========================= */
-$delivery_charge = 10.00;
-$total = 0;
-
-foreach ($cart as $item) {
-    $total += $item['price'] * $item['quantity'];
-}
-$grand_total = $total + $delivery_charge;
-
-/* =========================
-   Payment selection
-========================= */
-$payment_method = $_POST['payment_method'] ?? 'Card';
-
-/* =========================
-   Simulate payment
-========================= */
-$payment_success = true; // replace with gateway response
-
-if (!$payment_success) {
-    unset($_SESSION['processing_payment']);
-    die("Payment failed. Please try again.");
-}
-
-/* =========================
-   Create order
-========================= */
-$conn->begin_transaction();
-
-try {
-    $orderStmt = $conn->prepare(
-        "INSERT INTO orders (user_id, total_amount, status) VALUES (?, ?, 'Paid')"
-    );
-    $orderStmt->bind_param("id", $user_id, $grand_total);
-    $orderStmt->execute();
-    $order_id = $orderStmt->insert_id;
-
-    $itemStmt = $conn->prepare(
-        "INSERT INTO order_items (order_id, product_id, quantity, price)
-         VALUES (?, ?, ?, ?)"
-    );
-
-    foreach ($cart as $item) {
-        $itemStmt->bind_param(
-            "iiid",
-            $order_id,
-            $item['product_id'],
-            $item['quantity'],
-            $item['price']
-        );
-        $itemStmt->execute();
-    }
-
-    $txnStmt = $conn->prepare(
-        "INSERT INTO transactions (order_id, payment_method) VALUES (?, ?)"
-    );
-    $txnStmt->bind_param("is", $order_id, $payment_method);
-    $txnStmt->execute();
-
-    $conn->commit();
-} catch (Exception $e) {
-    $conn->rollback();
-    unset($_SESSION['processing_payment']);
-    die("Order processing error.");
-}
-
-/* =========================
-   Generate PDF
-========================= */
-require_once __DIR__ . '/fpdf/fpdf.php';
-
-$pdf = new FPDF();
-$pdf->AddPage();
-$pdf->SetFont('Arial', 'B', 14);
-$pdf->Cell(0, 10, 'Sarawak Scents - Payment Receipt', 0, 1);
-
-$pdf->SetFont('Arial', '', 10);
-$pdf->Cell(0, 8, "Order ID: $order_id", 0, 1);
-$pdf->Cell(0, 8, "Delivery Address: $delivery_address", 0, 1);
-$pdf->Ln(5);
-
-foreach ($cart as $item) {
-    $line = $item['name'] . " x " . $item['quantity'] . " = RM " . number_format($item['price'] * $item['quantity'], 2);
-    $pdf->Cell(0, 8, $line, 0, 1);
-}
-
-$pdf->Ln(5);
-$pdf->Cell(0, 8, "Delivery: RM " . number_format($delivery_charge, 2), 0, 1);
-$pdf->Cell(0, 8, "Total: RM " . number_format($grand_total, 2), 0, 1);
-
-$pdf_path = "receipts/receipt_$order_id.pdf";
-$pdf->Output('F', $pdf_path);
-
-/* =========================
-Email receipt
-========================= */
-$to = $user['email'];
-$subject = "Your Sarawak Scents Order Receipt";
-$message = "Thank you for your order.\nOrder ID: $order_id\nTotal: RM " . number_format($grand_total, 2);
-$headers = "From: no-reply@sarawakscents.com";
-
-mail($to, $subject, $message, $headers);
-
-/* =========================
-   Cleanup
-========================= */
-unset($_SESSION['cart']);
-unset($_SESSION['processing_payment']);
+// Fetch Items
+$items_res = mysqli_query($conn, "SELECT oi.*, p.name FROM order_items oi JOIN products p ON oi.product_id = p.product_id WHERE oi.order_id = $order_id");
 ?>
-
-<!-- =========================
- Display receipt
-========================= -->
 <!DOCTYPE html>
 <html>
-
 <head>
-    <title>Payment Receipt</title>
+    <title>Receipt #<?php echo $order_id; ?></title>
+    <style>
+        body { font-family: sans-serif; background: #f3f4f6; padding: 40px; }
+        .receipt { max-width: 500px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .header { text-align: center; border-bottom: 2px dashed #ddd; padding-bottom: 20px; margin-bottom: 20px; }
+        .item { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .total { border-top: 2px solid #333; margin-top: 20px; padding-top: 10px; font-weight: bold; font-size: 1.2rem; display: flex; justify-content: space-between; }
+        .print-btn { display: block; width: 100%; padding: 10px; background: #333; color: white; text-align: center; text-decoration: none; margin-top: 20px; border-radius: 5px; cursor: pointer; }
+
+        /* =========================================
+           PRINT STYLES (Hide buttons when printing)
+           ========================================= */
+        @media print {
+            /* Hide elements with this class */
+            .no-print { display: none !important; }
+            
+            /* Clean up the layout for paper */
+            body { background: white; padding: 0; }
+            .receipt { box-shadow: none; border: none; margin: 0; width: 100%; max-width: 100%; padding: 0; }
+        }
+    </style>
 </head>
-
 <body>
-    <h2>Order Confirmed</h2>
-    <p>Your order has been successfully placed.</p>
+    <div class="receipt">
+        <div class="header">
+            <h2 style="margin:0;">SARAWAK SCENTS</h2>
+            <p>Official Receipt</p>
+            <p style="font-size: 0.9rem; color: #666;">
+                Date: <?php echo date('d/m/Y h:i A', strtotime($order['order_date'])); ?><br>
+                Order ID: #<?php echo $order_id; ?>
+            </p>
+        </div>
 
-    <p><strong>Order ID:</strong> <?= $order_id ?></p>
-    <p><strong>Total Paid:</strong> RM <?= number_format($grand_total, 2) ?></p>
+        <div style="margin-bottom: 20px;">
+            <strong>Bill To:</strong><br>
+            <?php echo htmlspecialchars($order['full_name']); ?><br>
+            <?php echo htmlspecialchars($order['email']); ?>
+        </div>
 
-    <a href="<?= $pdf_path ?>" target="_blank">Download Receipt (PDF)</a>
+        <div style="font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;">Items Purchased</div>
+        
+        <?php while($item = mysqli_fetch_assoc($items_res)): ?>
+        <div class="item">
+            <span><?php echo $item['quantity']; ?>x <?php echo htmlspecialchars($item['name']); ?></span>
+            <span>RM <?php echo number_format($item['price'] * $item['quantity'], 2); ?></span>
+        </div>
+        <?php endwhile; ?>
+
+        <div class="total">
+            <span>TOTAL PAID</span>
+            <span>RM <?php echo number_format($order['total_amount'], 2); ?></span>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px; font-size: 0.8rem; color: #888;">
+            Thank you for shopping with us!<br>
+            Payment Status: <?php echo $order['status']; ?>
+        </div>
+
+        <button onclick="window.print()" class="print-btn no-print">Print Receipt</button>
+        
+        <a href="profile.php" class="no-print" style="display:block; text-align:center; margin-top:15px; color:#666; text-decoration:none;">
+            Back to Profile
+        </a>
+    </div>
 </body>
-
 </html>

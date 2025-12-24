@@ -1,5 +1,5 @@
-</div> <footer style="background-color: #064e3b; color: white; padding: 40px 20px 20px 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; width: 97%;">
-        <div style="max-width: 1100px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 40px;">
+</div> <footer style="background-color: #064e3b; color: white; padding: 40px 20px 20px 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; width: 100%;">
+        <div style="max-width: 1200px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 40px;">
             
             <div style="flex: 1; min-width: 250px;">
                 <a href="index.php" style="text-decoration: none; color: white; display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem;">
@@ -22,7 +22,7 @@
                 </ul>
             </div>
 
-            <div style="flex: 1; min-width: 200px;">
+            <div style="flex: 0.5; min-width: 200px;">
                 <h4 style="margin-bottom: 1.5rem; font-size: 1.1rem; border-bottom: 2px solid #059669; display: inline-block; padding-bottom: 5px;">Contact</h4>
                 <ul style="list-style: none; padding: 0; font-size: 0.95rem; line-height: 2;">
                     <li style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
