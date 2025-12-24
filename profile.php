@@ -96,12 +96,22 @@ include 'includes/header.php';
                             </td>
                             <td style="padding: 15px; text-align: center;">
                                 <?php 
-                                    // Status Logic: Green for Paid, Red for Cancelled
-                                    $bg = ($ord['status'] == 'Paid') ? '#d1fae5' : '#fee2e2';
-                                    $color = ($ord['status'] == 'Paid') ? '#065f46' : '#991b1b';
+                                    // Default (Unknown)
+                                    $bg = '#f3f4f6'; $color = '#374151'; 
+
+                                    // Status Logic
+                                    if ($ord['status'] == 'Paid') {
+                                        $bg = '#d1fae5'; $color = '#065f46'; // Green
+                                    } elseif ($ord['status'] == 'Pending') {
+                                        $bg = '#fef3c7'; $color = '#92400e'; // Yellow/Amber
+                                    } elseif ($ord['status'] == 'Shipped') {
+                                        $bg = '#dbeafe'; $color = '#1e40af'; // Blue
+                                    } elseif ($ord['status'] == 'Cancelled') {
+                                        $bg = '#fee2e2'; $color = '#991b1b'; // Red
+                                    }
                                 ?>
                                 <span style="background: <?php echo $bg; ?>; color: <?php echo $color; ?>; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">
-                                    <?php echo $ord['status']; ?>
+                                    <?php echo htmlspecialchars($ord['status']); ?>
                                 </span>
                             </td>
                             <td style="padding: 15px; text-align: center;">

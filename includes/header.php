@@ -143,7 +143,7 @@ $cart_count = isset($_SESSION['cart']) ? array_sum($_SESSION['cart']) : 0;
             <?php if (isset($_SESSION['user_id'])): ?>
                 
                 <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
-                    <li><a href="admin/admin_dashboard.php" style="color: #d35400; font-weight: bold; text-decoration:none;">Admin Panel</a></li>
+                    <li><a href="admin/dashboard.php" style="color: #d35400; font-weight: bold; text-decoration:none;">Admin Panel</a></li>
                 <?php else: ?>
                     <li>
                         <a href="profile.php" class="btn-profile <?php echo ($current_page == 'profile.php') ? 'active' : ''; ?>">

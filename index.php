@@ -1,10 +1,16 @@
 <?php
-// 1. Include Header (Starts session)
+// 1. Include Header (Starts session & DB connection)
+include 'includes/db_connect.php'; // Ensure DB is connected
 include 'includes/header.php'; 
 
 // 2. Get User Role & Name
 $role = isset($_SESSION['role']) ? $_SESSION['role'] : 'guest';
 $fullName = isset($_SESSION['full_name']) ? $_SESSION['full_name'] : 'Visitor';
+
+// 3. FETCH FEATURED PRODUCTS (Dynamic & Respects 'is_active')
+// We limit to 3 items for the "Favorites" section
+$fav_sql = "SELECT * FROM products WHERE is_active = 1 ORDER BY created_at ASC LIMIT 3";
+$fav_result = mysqli_query($conn, $fav_sql);
 ?>
 
 <div class="container" style="margin-top: 0; min-height: 80vh;">
@@ -54,44 +60,29 @@ $fullName = isset($_SESSION['full_name']) ? $_SESSION['full_name'] : 'Visitor';
 
             <div style="max-width: 1100px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: center; gap: 30px;">
                 
-                <div class="product-card" style="background: white; padding: 20px; border-radius: 10px; width: 300px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); text-align: left;">
-                    <img src="assets/images/rainforest_mist.png" alt="Rainforest Mist Perfume" 
-                         style="width: 100%; height: 200px; object-fit: cover; border-radius: 5px; margin-bottom: 15px;">
-                    
-                    <h3 style="font-size: 1.2rem; color: #333; margin-bottom: 5px;">Rainforest Mist Perfume</h3>
-                    <p style="font-size: 0.9rem; color: #666; margin-bottom: 15px; line-height: 1.4;">
-                        Captures the fresh scent of the jungle after a morning rain. Earthy and refreshing.
-                    </p>
-                    <a href="product_details.php?id=1" style="display: block; text-align: center; background: #2c3e50; color: white; padding: 10px; border-radius: 5px; text-decoration: none; font-weight: bold;">
-                        View Details
-                    </a>
-                </div>
-
-                <div class="product-card" style="background: white; padding: 20px; border-radius: 10px; width: 300px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); text-align: left;">
-                    <img src="assets/images/pepper_soap.png" alt="Pepper Berry Soap" 
-                         style="width: 100%; height: 200px; object-fit: cover; border-radius: 5px; margin-bottom: 15px;">
-
-                    <h3 style="font-size: 1.2rem; color: #333; margin-bottom: 5px;">Pepper Berry Soap</h3>
-                    <p style="font-size: 0.9rem; color: #666; margin-bottom: 15px; line-height: 1.4;">
-                         A hand-milled, luxury bar soap featuring real Sarawak black pepper for gentle exfoliation.
-                    </p>
-                    <a href="product_details.php?id=2" style="display: block; text-align: center; background: #2c3e50; color: white; padding: 10px; border-radius: 5px; text-decoration: none; font-weight: bold;">
-                        View Details
-                    </a>
-                </div>
-
-                <div class="product-card" style="background: white; padding: 20px; border-radius: 10px; width: 300px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); text-align: left;">
-                    <img src="assets/images/orchid_candle.png" alt="Orchid Bloom Candle" 
-                         style="width: 100%; height: 200px; object-fit: cover; border-radius: 5px; margin-bottom: 15px;">
-
-                    <h3 style="font-size: 1.2rem; color: #333; margin-bottom: 5px;">Orchid Bloom Candle</h3>
-                    <p style="font-size: 0.9rem; color: #666; margin-bottom: 15px; line-height: 1.4;">
-                        Hand-poured soy wax candle scented with a delicate floral blend of native orchids.
-                    </p>
-                    <a href="product_details.php?id=3" style="display: block; text-align: center; background: #2c3e50; color: white; padding: 10px; border-radius: 5px; text-decoration: none; font-weight: bold;">
-                        View Details
-                    </a>
-                </div>
+                <?php if (mysqli_num_rows($fav_result) > 0): ?>
+                    <?php while ($prod = mysqli_fetch_assoc($fav_result)): ?>
+                        <div class="product-card" style="background: white; padding: 20px; border-radius: 10px; width: 300px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); text-align: left;">
+                            <a href="product_details.php?id=<?php echo $prod['product_id']; ?>">
+                                <img src="assets/images/<?php echo htmlspecialchars($prod['image']); ?>" 
+                                     alt="<?php echo htmlspecialchars($prod['name']); ?>" 
+                                     style="width: 100%; height: 200px; object-fit: cover; border-radius: 5px; margin-bottom: 15px;">
+                            </a>
+                            
+                            <h3 style="font-size: 1.2rem; color: #333; margin-bottom: 5px;">
+                                <?php echo htmlspecialchars($prod['name']); ?>
+                            </h3>
+                            <p style="font-size: 0.9rem; color: #666; margin-bottom: 15px; line-height: 1.4; min-height: 40px;">
+                                <?php echo htmlspecialchars(substr($prod['description'], 0, 80)) . '...'; ?>
+                            </p>
+                            <a href="product_details.php?id=<?php echo $prod['product_id']; ?>" style="display: block; text-align: center; background: #2c3e50; color: white; padding: 10px; border-radius: 5px; text-decoration: none; font-weight: bold;">
+                                View Details
+                            </a>
+                        </div>
+                    <?php endwhile; ?>
+                <?php else: ?>
+                    <p>No featured products available.</p>
+                <?php endif; ?>
 
             </div>
             

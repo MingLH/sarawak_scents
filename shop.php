@@ -7,18 +7,18 @@ include 'includes/header.php';
 $category_id = isset($_GET['category']) ? intval($_GET['category']) : 0;
 $search_query = isset($_GET['search']) ? trim($_GET['search']) : '';
 
-// Base Query
+// Base Query (UPDATED: Only show Active products)
 $sql = "SELECT p.*, c.category_name 
         FROM products p 
         JOIN categories c ON p.category_id = c.category_id 
-        WHERE 1=1";
+        WHERE p.is_active = 1";
 
 // Category Filter
 if ($category_id > 0) {
     $sql .= " AND p.category_id = $category_id";
 }
 
-// Search Filter (Fixed: Now searches Category Name too!)
+// Search Filter
 if (!empty($search_query)) {
     $safe_search = mysqli_real_escape_string($conn, $search_query);
     $sql .= " AND (p.name LIKE '%$safe_search%' 
