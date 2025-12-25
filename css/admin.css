@@ -1,0 +1,533 @@
+/* ========================
+   ADMIN DASHBOARD STYLES
+   ======================== */
+:root {
+    --admin-dark: #1e293b;  /* Slate 800 */
+    --admin-green: #064e3b; /* Emerald 900 */
+    --admin-light: #f1f5f9; /* Slate 100 */
+    --sidebar-width: 260px;
+    --header-height: 70px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    background-color: var(--admin-light);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden; 
+}
+
+/* --- LAYOUT GRID --- */
+.admin-wrapper {
+    display: flex;
+    min-height: 100vh;
+    position: relative;
+}
+
+/* --- SIDEBAR --- */
+.sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--admin-dark);
+    color: white;
+    position: fixed;
+    top: 0; 
+    left: 0; 
+    height: 100%; /* Changed from 100vh for better mobile support */
+    z-index: 1000;
+    transition: transform 0.3s ease-in-out;
+    display: flex; 
+    flex-direction: column; 
+    overflow: hidden; /* Contains the scrollable area */
+}
+
+.sidebar-brand {
+    height: var(--header-height);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; font-weight: bold; letter-spacing: 1px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    background-color: rgba(0,0,0,0.2);
+    flex-shrink: 0;
+}
+
+.sidebar-menu {
+    list-style: none; padding: 20px 0; margin: 0;
+    flex-grow: 1; 
+    overflow-y: auto; /* Internal scroll for menu items only */
+}
+
+.sidebar-menu li a {
+    display: flex; align-items: center; gap: 15px;
+    padding: 15px 25px; color: #cbd5e1; text-decoration: none;
+    transition: all 0.2s; border-left: 4px solid transparent;
+}
+
+.sidebar-menu li a:hover, .sidebar-menu li a.active {
+    background: rgba(255,255,255,0.05); color: white;
+    border-left-color: var(--admin-green);
+}
+
+.sidebar-footer {
+    padding: 20px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    background-color: rgba(0,0,0,0.1);
+    flex-shrink: 0;
+    /* Ensure it sits at bottom safely on mobile */
+    padding-bottom: max(20px, env(safe-area-inset-bottom)); 
+}
+
+.logout-btn {
+    display: block; text-align: center;
+    background-color: #ef4444; color: white;
+    padding: 10px; border-radius: 6px;
+    text-decoration: none; font-weight: bold; transition: background 0.3s;
+}
+.logout-btn:hover { background-color: #dc2626; }
+
+/* --- MAIN CONTENT --- */
+.main-content {
+    margin-left: var(--sidebar-width);
+    width: calc(100% - var(--sidebar-width));
+    padding: 30px;
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    transition: margin-left 0.3s ease-in-out, width 0.3s ease-in-out;
+}
+
+/* --- HEADER & MOBILE TOGGLE (Updated) --- */
+.admin-header {
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    margin-bottom: 30px;
+    gap: 20px; 
+}
+
+.mobile-toggle {
+    display: none; /* Hidden on desktop */
+    font-size: 1.1rem;
+    font-weight: bold;
+    background: #fff;
+    border: none;
+    border-bottom: 1px solid #ddd;
+    cursor: pointer;
+    color: #333;
+    text-align: left;
+    padding: 15px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 900;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Added shadow for better visibility */
+}
+
+/* --- DASHBOARD CARDS --- */
+.cards-grid {
+    display: grid;
+    /* This auto-fit logic ensures cards never get too skinny */
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 25px;
+    margin-bottom: 40px;
+}
+
+.card {
+    background: white; padding: 25px; border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 30px;
+}
+
+.card-metric { border-left: 5px solid #ccc; }
+.card-metric h3 { margin: 0; font-size: 1.1rem; color: #555; }
+.card-metric .number { font-size: 1.8rem; font-weight: bold; color: #333; margin-top: 10px; }
+
+/* --- CHARTS & FILTERS --- */
+.chart-container { height: 350px; position: relative; width: 100%; }
+
+.filter-group {
+    display: flex; align-items: center; gap: 10px;
+    background: #f8f9fa; padding: 8px 12px;
+    border-radius: 5px; border: 1px solid #ddd;
+    flex-wrap: wrap; /* Allows items to wrap on small screens */
+}
+
+.filter-select {
+    padding: 6px; border-radius: 4px; border: 1px solid #ccc;
+    font-weight: bold; color: #333;
+}
+
+.filter-input {
+    padding: 6px; border: 1px solid #ccc; border-radius: 4px;
+    display: none;
+}
+
+#rangeInput { gap: 5px; align-items: center; }
+
+/* --- TABLES --- */
+.table-responsive {
+    overflow-x: auto; /* Crucial for mobile tables */
+    background: white;
+    border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    padding: 20px;
+}
+
+table {
+    width: 100%; border-collapse: collapse; 
+    min-width: 600px; /* Forces scroll bar if screen < 600px */
+}
+
+th, td {
+    padding: 12px 15px; text-align: left; border-bottom: 1px solid #f1f5f9;
+}
+th { background-color: #f8fafc; color: #64748b; font-weight: 600; }
+
+/* --- STATUS BADGES --- */
+.status-paid { background: #d1fae5; color: #065f46; padding: 4px 10px; border-radius: 15px; font-weight: bold; font-size: 0.8rem; white-space: nowrap; }
+.status-pending { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 15px; font-weight: bold; font-size: 0.8rem; white-space: nowrap; }
+.status-shipped { background: #dbeafe; color: #1e40af; padding: 4px 10px; border-radius: 15px; font-weight: bold; font-size: 0.8rem; white-space: nowrap; }
+.status-cancelled { background: #fee2e2; color: #991b1b; padding: 4px 10px; border-radius: 15px; font-weight: bold; font-size: 0.8rem; white-space: nowrap; }
+
+/* --- BUTTONS --- */
+.btn-action {
+    padding: 8px 15px; background: #333; color: white;
+    border: none; border-radius: 4px; cursor: pointer; text-decoration: none; white-space: nowrap;
+}
+
+.card-header-actions {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
+}
+
+.btn-print {
+    background-color: #333; color: white; border: none;
+    padding: 8px 15px; border-radius: 5px; cursor: pointer;
+    font-size: 0.9rem;
+}
+.btn-print:hover { background-color: #000; }
+
+/* =========================================
+   MOBILE RESPONSIVENESS (Max 768px)
+   ========================================= */
+@media (max-width: 768px) {
+    /* 1. Sidebar Animation */
+    .sidebar { transform: translateX(-100%); width: 260px; }
+    .sidebar.active { transform: translateX(0); }
+    
+    /* 2. Content Layout (Padding is 20px) */
+    .main-content { margin-left: 0; width: 100%; padding: 20px; }
+    
+    /* 3. Mobile Menu Bar Fix */
+    .mobile-toggle { 
+        display: block;
+        /* Calculate width to cover the 20px padding on left + right */
+        width: calc(100% + 40px); 
+        /* Pull the button -20px to the left and top to touch edges */
+        margin: -20px -20px 20px -20px;
+    }
+    
+    /* 4. Stack Header Elements */
+    .admin-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .filter-group {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .filter-select, .filter-input, #rangeInput {
+        flex-grow: 1; 
+    }
+    
+    .card-header-actions {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    /* 5. Overlay */
+    .overlay {
+        display: none; position: fixed; top: 0; left: 0;
+        width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 900;
+    }
+    .overlay.active { display: block; }
+}
+
+/* --- PRINT --- */
+@media print {
+    .sidebar, .filter-group, .btn-action, .mobile-toggle, .btn-print, .overlay { display: none !important; }
+    .main-content { margin: 0; padding: 0; width: 100%; }
+    .cards-grid { grid-template-columns: 1fr 1fr 1fr 1fr; }
+    .card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
+    .chart-container, canvas { height: 300px !important; width: 100% !important; }
+}
+
+/* ========================
+   FORM STYLES (For Products/Edit Pages)
+   ======================== */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #444;
+    font-size: 0.9rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: border-color 0.3s;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--admin-green);
+    box-shadow: 0 0 0 3px rgba(6, 78, 59, 0.1);
+}
+
+.current-img-preview {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px dashed #ccc;
+}
+
+/* Badge Tweaks for Products */
+.badge-active { background: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; }
+.badge-archived { background: #f3f4f6; color: #6b7280; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; }
+
+/* Responsive Form */
+@media (max-width: 768px) {
+    .form-grid { grid-template-columns: 1fr; gap: 0; }
+}
+
+/* ========================
+   1. IMPROVED ALERTS (Pop Messages)
+   ======================== */
+.alert {
+    padding: 15px 20px;
+    margin-bottom: 25px;
+    border-radius: 8px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 12px; /* Space between icon and text */
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    animation: slideDown 0.4s ease-out;
+}
+
+/* Green Success Box */
+.alert-success {
+    background-color: #dcfce7;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+}
+/* Add a checkmark icon automatically via CSS */
+.alert-success::before {
+    content: '\f00c'; /* FontAwesome Check Icon */
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 1.2rem;
+}
+
+/* Red Error Box */
+.alert-error {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
+.alert-error::before {
+    content: '\f071'; /* FontAwesome Warning Icon */
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 1.2rem;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ========================
+   2. ACTION BUTTONS (Icon + Text)
+   ======================== */
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px; /* Space between icon and word */
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+
+/* Edit (Blue) */
+.btn-edit { color: #2563eb; background: #eff6ff; }
+.btn-edit:hover { background: #dbeafe; }
+
+/* Archive (Orange) */
+.btn-archive { color: #d97706; background: #fffbeb; }
+.btn-archive:hover { background: #fef3c7; }
+
+/* Delete (Red) */
+.btn-delete { color: #dc2626; background: #fef2f2; }
+.btn-delete:hover { background: #fee2e2; }
+
+/* Restore (Green) */
+.btn-restore { color: #059669; background: #ecfdf5; }
+.btn-restore:hover { background: #d1fae5; }
+
+/* ========================
+   PRODUCTS PAGE SPECIFIC
+   ======================== */
+
+/* --- 1. Form Grid (Two Columns) --- */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #444;
+    font-size: 0.9rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: border-color 0.3s;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--admin-green);
+    box-shadow: 0 0 0 3px rgba(6, 78, 59, 0.1);
+}
+
+.current-img-preview {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px dashed #ccc;
+}
+
+/* --- 2. Action Buttons (Icon + Text) --- */
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: background 0.2s;
+    border: 1px solid transparent;
+}
+
+.btn-edit { color: #2563eb; background: #eff6ff; border-color: #dbeafe; }
+.btn-edit:hover { background: #dbeafe; }
+
+.btn-archive { color: #d97706; background: #fffbeb; border-color: #fef3c7; }
+.btn-archive:hover { background: #fef3c7; }
+
+.btn-delete { color: #dc2626; background: #fef2f2; border-color: #fee2e2; }
+.btn-delete:hover { background: #fee2e2; }
+
+.btn-restore { color: #059669; background: #ecfdf5; border-color: #d1fae5; }
+.btn-restore:hover { background: #d1fae5; }
+
+/* --- 3. Badges & Rows --- */
+.badge-active { 
+    background: #dcfce7; color: #166534; 
+    padding: 4px 10px; border-radius: 20px; 
+    font-size: 0.75rem; font-weight: bold; 
+}
+
+.badge-inactive { 
+    background: #f3f4f6; color: #6b7280; 
+    padding: 4px 10px; border-radius: 20px; 
+    font-size: 0.75rem; font-weight: bold; 
+}
+
+.row-inactive {
+    opacity: 0.6;
+    background-color: #f9fafb;
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr; /* Stack form on mobile */
+        gap: 0;
+    }
+}
+
+/* ========================
+   USERS PAGE SPECIFIC
+   ======================== */
+
+/* Role Badges */
+.badge-admin { 
+    background: #fee2e2; color: #991b1b; 
+    padding: 4px 10px; border-radius: 20px; 
+    font-size: 0.75rem; font-weight: bold; 
+    border: 1px solid #fecaca;
+}
+
+.badge-member { 
+    background: #e0f2fe; color: #0369a1; 
+    padding: 4px 10px; border-radius: 20px; 
+    font-size: 0.75rem; font-weight: bold; 
+    border: 1px solid #bae6fd;
+}
+
+/* Contact Info Styling */
+.user-contact {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.user-contact i {
+    width: 20px;
+    text-align: center;
+    color: #888;
+}

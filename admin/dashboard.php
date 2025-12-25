@@ -9,7 +9,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 }
 
 // ==========================================
-// 2. FILTER & DATE LOGIC
+// 2. FILTER & DATE LOGIC (Your Original Logic)
 // ==========================================
 $filter = $_GET['filter'] ?? 'all_time';
 
@@ -23,13 +23,8 @@ switch ($filter) {
         $picked_date = $_GET['date_input'] ?? date('Y-m-d');
         $start_date = $picked_date;
         $end_date = $picked_date;
-        
         $chart_label = "Sales for " . date('d M Y', strtotime($picked_date)) . " (Hourly)";
-        $chart_sql = "SELECT DATE_FORMAT(order_date, '%h %p') as label, SUM(total_amount) as total 
-                      FROM orders 
-                      WHERE status = 'Paid' AND DATE(order_date) = '$picked_date'
-                      GROUP BY HOUR(order_date) 
-                      ORDER BY order_date ASC";
+        $chart_sql = "SELECT DATE_FORMAT(order_date, '%h %p') as label, SUM(total_amount) as total FROM orders WHERE status = 'Paid' AND DATE(order_date) = '$picked_date' GROUP BY HOUR(order_date) ORDER BY order_date ASC";
         break;
 
     case 'weekly':
@@ -40,49 +35,29 @@ switch ($filter) {
         $start_date = $dto->format('Y-m-d');
         $dto->modify('+6 days');
         $end_date = $dto->format('Y-m-d');
-
         $chart_label = "Sales: Week $parts[1] ($start_date to $end_date)";
-        $chart_sql = "SELECT DATE_FORMAT(order_date, '%a %d') as label, SUM(total_amount) as total 
-                      FROM orders 
-                      WHERE status = 'Paid' AND DATE(order_date) BETWEEN '$start_date' AND '$end_date'
-                      GROUP BY DATE(order_date) 
-                      ORDER BY order_date ASC";
+        $chart_sql = "SELECT DATE_FORMAT(order_date, '%a %d') as label, SUM(total_amount) as total FROM orders WHERE status = 'Paid' AND DATE(order_date) BETWEEN '$start_date' AND '$end_date' GROUP BY DATE(order_date) ORDER BY order_date ASC";
         break;
 
     case 'monthly':
         $picked_month = $_GET['month_input'] ?? date('Y-m');
         $start_date = $picked_month . "-01";
         $end_date = date('Y-m-t', strtotime($start_date));
-
         $chart_label = "Sales for " . date('F Y', strtotime($start_date));
-        $chart_sql = "SELECT DATE_FORMAT(order_date, '%d %b') as label, SUM(total_amount) as total 
-                      FROM orders 
-                      WHERE status = 'Paid' AND DATE_FORMAT(order_date, '%Y-%m') = '$picked_month'
-                      GROUP BY DATE(order_date) 
-                      ORDER BY order_date ASC";
+        $chart_sql = "SELECT DATE_FORMAT(order_date, '%d %b') as label, SUM(total_amount) as total FROM orders WHERE status = 'Paid' AND DATE_FORMAT(order_date, '%Y-%m') = '$picked_month' GROUP BY DATE(order_date) ORDER BY order_date ASC";
         break;
 
     case 'custom':
         $start_date = $_GET['start_date'] ?? date('Y-m-01');
         $end_date = $_GET['end_date'] ?? date('Y-m-d');
-
         $chart_label = "Sales from $start_date to $end_date";
-        $chart_sql = "SELECT DATE_FORMAT(order_date, '%d %M') as label, SUM(total_amount) as total 
-                      FROM orders 
-                      WHERE status = 'Paid' AND DATE(order_date) BETWEEN '$start_date' AND '$end_date'
-                      GROUP BY DATE(order_date) 
-                      ORDER BY order_date ASC";
+        $chart_sql = "SELECT DATE_FORMAT(order_date, '%d %M') as label, SUM(total_amount) as total FROM orders WHERE status = 'Paid' AND DATE(order_date) BETWEEN '$start_date' AND '$end_date' GROUP BY DATE(order_date) ORDER BY order_date ASC";
         break;
 
     case 'all_time':
     default:
         $chart_label = "Total Sales History (Monthly Trend)";
-        $chart_sql = "SELECT DATE_FORMAT(order_date, '%b %Y') as label, SUM(total_amount) as total 
-                      FROM orders 
-                      WHERE status = 'Paid'
-                      GROUP BY YEAR(order_date), MONTH(order_date) 
-                      ORDER BY order_date ASC";
-        
+        $chart_sql = "SELECT DATE_FORMAT(order_date, '%b %Y') as label, SUM(total_amount) as total FROM orders WHERE status = 'Paid' GROUP BY YEAR(order_date), MONTH(order_date) ORDER BY order_date ASC";
         $start_date = "2000-01-01"; 
         $end_date = date('Y-12-31');
         break;
@@ -130,64 +105,17 @@ if ($filter != 'all_time') {
 
 $query .= " ORDER BY t.transaction_date DESC LIMIT 100";
 $trans_result = mysqli_query($conn, $query);
-
 ?>
 
 <?php include 'includes/header.php'; ?>
 
-<style>
-    /* Screen Styles */
-    .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px; }
-    .card-metric { border-left: 5px solid #ccc; }
-    .number { font-size: 1.8rem; font-weight: bold; color: #333; margin-top: 10px; }
-    .chart-container { height: 350px; position: relative; width: 100%; }
-    
-    .filter-group { display: flex; align-items: center; gap: 10px; background: #f8f9fa; padding: 10px; border-radius: 5px; border: 1px solid #ddd; }
-    .filter-input { padding: 6px; border: 1px solid #ccc; border-radius: 4px; display: none; } 
-    
-    /* UPDATED STATUS BADGES */
-    .status-paid { background: #d1fae5; color: #065f46; padding: 4px 10px; border-radius: 15px; font-weight: bold; font-size: 0.8rem; }
-    .status-pending { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 15px; font-weight: bold; font-size: 0.8rem; }
-    .status-shipped { background: #dbeafe; color: #1e40af; padding: 4px 10px; border-radius: 15px; font-weight: bold; font-size: 0.8rem; }
-    .status-cancelled { background: #fee2e2; color: #991b1b; padding: 4px 10px; border-radius: 15px; font-weight: bold; font-size: 0.8rem; }
-
-    /* --- 🖨️ PRINT SPECIFIC STYLES --- */
-    @media print {
-        .filter-group, .btn-action, .sidebar { display: none !important; }
-        
-        .cards-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .card {
-            box-shadow: none;
-            border: 1px solid #ccc;
-            break-inside: avoid;
-            page-break-inside: avoid;
-        }
-        
-        .chart-container {
-            width: 100% !important;
-            height: 300px !important;
-        }
-        canvas {
-            width: 100% !important;
-            height: 100% !important;
-        }
-
-        h1, h3 { color: black; }
-    }
-</style>
-
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div class="admin-header">
         <h1 style="color: #333; margin: 0;">Dashboard</h1>
         
         <form method="GET" class="filter-group">
             <span style="font-weight:bold; color:#555;">Filter:</span>
             
-            <select name="filter" id="filterSelect" onchange="toggleInputs()" style="padding: 6px; border-radius: 4px; border: 1px solid #ccc; font-weight:bold;">
+            <select name="filter" id="filterSelect" onchange="toggleInputs()" class="filter-select">
                 <option value="all_time" <?php echo ($filter == 'all_time') ? 'selected' : ''; ?>>All Time</option>
                 <option value="daily" <?php echo ($filter == 'daily') ? 'selected' : ''; ?>>Daily</option>
                 <option value="weekly" <?php echo ($filter == 'weekly') ? 'selected' : ''; ?>>Weekly</option>
@@ -236,51 +164,52 @@ $trans_result = mysqli_query($conn, $query);
     </div>
 
     <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <div class="card-header-actions">
             <h3 style="margin:0;">Transaction Records</h3>
-            <button onclick="window.print()" class="btn-action" style="background:#555;">🖨️ Print PDF Report</button>
+            <button onclick="window.print()" class="btn-print">🖨️ Print PDF Report</button>
         </div>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Order ID</th> <th>Date</th>
-                    <th>User</th>
-                    <th>Amount</th>
-                    <th>Order Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (mysqli_num_rows($trans_result) > 0): ?>
-                    <?php while ($row = mysqli_fetch_assoc($trans_result)): ?>
+        <div class="table-responsive">
+            <table>
+                <thead>
                     <tr>
-                        <td><strong>#<?php echo htmlspecialchars($row['order_id']); ?></strong></td> <td><?php echo date('d M Y, h:i A', strtotime($row['transaction_date'])); ?></td>
-                        <td><?php echo htmlspecialchars($row['full_name']); ?></td> 
-                        <td>RM <?php echo number_format($row['total_amount'], 2); ?></td>
-                        <td>
-                            <?php 
-                                // Logic: Determine Class based on Order Status
-                                $status = $row['order_status'];
-                                $badgeClass = 'status-pending'; // Default
-                                
-                                if ($status == 'Paid') $badgeClass = 'status-paid';
-                                elseif ($status == 'Shipped') $badgeClass = 'status-shipped';
-                                elseif ($status == 'Cancelled') $badgeClass = 'status-cancelled';
-                            ?>
-                            <span class="<?php echo $badgeClass; ?>">
-                                <?php echo htmlspecialchars($status); ?>
-                            </span>
-                        </td>
+                        <th>Order ID</th> <th>Date</th>
+                        <th>User</th>
+                        <th>Amount</th>
+                        <th>Order Status</th>
                     </tr>
-                    <?php endwhile; ?>
-                <?php else: ?>
-                    <tr><td colspan="5" style="text-align:center; padding:20px;">No records found for this period.</td></tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    <?php if (mysqli_num_rows($trans_result) > 0): ?>
+                        <?php while ($row = mysqli_fetch_assoc($trans_result)): ?>
+                        <tr>
+                            <td><strong>#<?php echo htmlspecialchars($row['order_id']); ?></strong></td> <td><?php echo date('d M Y, h:i A', strtotime($row['transaction_date'])); ?></td>
+                            <td><?php echo htmlspecialchars($row['full_name']); ?></td> 
+                            <td>RM <?php echo number_format($row['total_amount'], 2); ?></td>
+                            <td>
+                                <?php 
+                                    $status = $row['order_status'];
+                                    $badgeClass = 'status-pending'; 
+                                    if ($status == 'Paid') $badgeClass = 'status-paid';
+                                    elseif ($status == 'Shipped') $badgeClass = 'status-shipped';
+                                    elseif ($status == 'Cancelled') $badgeClass = 'status-cancelled';
+                                ?>
+                                <span class="<?php echo $badgeClass; ?>">
+                                    <?php echo htmlspecialchars($status); ?>
+                                </span>
+                            </td>
+                        </tr>
+                        <?php endwhile; ?>
+                    <?php else: ?>
+                        <tr><td colspan="5" style="text-align:center; padding:20px;">No records found for this period.</td></tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <script>
+        // 1. CHART LOGIC
         const ctx = document.getElementById('salesChart').getContext('2d');
         new Chart(ctx, {
             type: 'bar',
@@ -301,16 +230,22 @@ $trans_result = mysqli_query($conn, $query);
             }
         });
 
+        // 2. FILTER TOGGLE LOGIC
         function toggleInputs() {
             const val = document.getElementById('filterSelect').value;
             const ids = ['dateInput', 'weekInput', 'monthInput', 'rangeInput'];
-            ids.forEach(id => document.getElementById(id).style.display = 'none');
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                if(el) el.style.display = 'none';
+            });
 
             if (val === 'daily') document.getElementById('dateInput').style.display = 'block';
             if (val === 'weekly') document.getElementById('weekInput').style.display = 'block';
             if (val === 'monthly') document.getElementById('monthInput').style.display = 'block';
             if (val === 'custom') document.getElementById('rangeInput').style.display = 'flex';
         }
+        
+        // Run on load to set correct state
         toggleInputs();
     </script>
 

@@ -1,65 +1,77 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) session_start();
+include '../includes/db_connect.php';
+
+// 1. SECURITY CHECK
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+    header("Location: ../login.php");
+    exit();
+}
+
+$current_page = basename($_SERVER['PHP_SELF']);
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - Sarawak Scents</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
-    <style>
-        * { box-sizing: border-box; }
-        body { font-family: 'Roboto', sans-serif; margin: 0; background-color: #f4f6f9; display: flex; height: 100vh; overflow: hidden; }
-
-        /* SIDEBAR */
-        .sidebar { width: 250px; background-color: #343a40; color: #fff; display: flex; flex-direction: column; padding-top: 20px; flex-shrink: 0; }
-        .sidebar h2 { text-align: center; margin-bottom: 30px; font-size: 1.2rem; text-transform: uppercase; color: #bbb; letter-spacing: 1px; }
-        .sidebar a { padding: 15px 25px; text-decoration: none; color: #d1d1d1; font-size: 1rem; display: block; transition: 0.3s; border-left: 4px solid transparent; }
-        .sidebar a:hover, .sidebar a.active { background-color: #495057; color: #fff; border-left-color: #064e3b; }
-        .logout-btn { margin-top: auto; background-color: #c0392b; text-align: center; }
-        .logout-btn:hover { background-color: #a93226; border-left-color: transparent; }
-
-        /* MAIN CONTENT STRUCTURE */
-        .main-content { flex: 1; padding: 20px 40px; overflow-y: auto; }
-
-        /* COMMON UTILITIES */
-        .btn-action { padding: 8px 15px; background: #333; color: white; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; font-size: 0.9rem; }
-        .alert { padding: 15px; margin-bottom: 20px; border-radius: 5px; font-weight: 500; }
-        .alert-success { background: #d1fae5; color: #065f46; }
-        .alert-error { background: #fee2e2; color: #991b1b; }
-        
-        /* CARD & TABLE STYLES */
-        .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 30px; }
-        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #eee; }
-        th { background: #f8f9fa; color: #555; font-weight: 600; }
-
-        /* PRINT MEDIA */
-        @media print {
-            .sidebar { display: none; }
-            .btn-action, .logout-btn { display: none; }
-            body { background: white; height: auto; overflow: visible; }
-            .main-content { padding: 0; }
-        }
-    </style>
+    <link rel="stylesheet" href="../css/admin.css">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
-    <?php 
-        // Get current page name (e.g., 'dashboard.php')
-        $current_page = basename($_SERVER['PHP_SELF']);
-    ?>
+<div class="overlay" onclick="toggleSidebar()"></div>
 
-    <div class="sidebar">
-        <h2>Admin Panel</h2>
-        <a href="dashboard.php" class="<?php echo ($current_page == 'dashboard.php') ? 'active' : ''; ?>">Dashboard</a>
-        <a href="products.php" class="<?php echo ($current_page == 'products.php') ? 'active' : ''; ?>">Manage Products</a>
-        <a href="orders.php" class="<?php echo ($current_page == 'orders.php') ? 'active' : ''; ?>">Manage Orders</a>
-        <a href="users.php" class="<?php echo ($current_page == 'users.php') ? 'active' : ''; ?>">Members List</a>
+<div class="admin-wrapper">
+    
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <i class="fas fa-leaf" style="margin-right: 10px; color: #4ade80;"></i> ADMIN PANEL
+        </div>
         
-        <a href="../index.php" target="_blank" style="margin-top: 20px; border-top: 1px solid #555;">View Website &rarr;</a>
-        
-        <a href="../logout.php" class="logout-btn" onclick="return confirm('Logout of Admin Panel?');">Logout</a>
-    </div>
+        <ul class="sidebar-menu">
+            <li>
+                <a href="dashboard.php" class="<?php echo ($current_page == 'dashboard.php') ? 'active' : ''; ?>">
+                    <i class="fas fa-home"></i> <span>Dashboard</span>
+                </a>
+            </li>
+            <li>
+                <a href="products.php" class="<?php echo ($current_page == 'products.php' || $current_page == 'add_product.php') ? 'active' : ''; ?>">
+                    <i class="fas fa-box"></i> <span>Manage Products</span>
+                </a>
+            </li>
+            <li>
+                <a href="orders.php" class="<?php echo ($current_page == 'orders.php') ? 'active' : ''; ?>">
+                    <i class="fas fa-shopping-cart"></i> <span>Manage Orders</span>
+                </a>
+            </li>
+            <li>
+                <a href="users.php" class="<?php echo ($current_page == 'users.php') ? 'active' : ''; ?>">
+                    <i class="fas fa-users"></i> <span>Members List</span>
+                </a>
+            </li>
+            
+            <li>
+                <a href="../index.php" target="_blank" style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <i class="fas fa-external-link-alt"></i> <span>View Website</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <a href="../logout.php" class="logout-btn" onclick="return confirm('Logout of Admin Panel?');">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </nav>
 
     <div class="main-content">
+        
+        <button class="mobile-toggle" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i> Menu
+        </button>

@@ -58,64 +58,51 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8" />
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Reset password</title>
+    <title>Reset Password</title>
     <link rel="stylesheet" href="css/style.css" />
 </head>
-
 <body>
 
-    <a href="#" class="back-link" id="backBtn"><- <span class="back-text">Back</span>
+    <a href="#" class="back-link" id="backBtn">
+        <span>&larr;</span> Back
     </a>
 
-    <div class="login-container">
+    <div class="auth-container">
         <div class="card">
-            <h1>Reset your password</h1>
-            <p class="subtitle">Please enter a new password</p>
+            <h1>Set New Password</h1>
+            <p class="subtitle">Please enter your new password below.</p>
 
             <form action="reset_password.php" method="post" id="resetForm">
                 <div class="field">
-                    <label class="field-label" for="password">Password</label>
-                    <input type="password" id="password" name="password"
-                        placeholder="Combination of alphabets and number" />
+                    <label>New Password</label>
+                    <input type="password" id="password" name="password" required placeholder="Min 8 chars..." />
                 </div>
 
                 <div class="field">
-                    <label class="field-label" for="repassword">Confirm Password</label>
-                    <input type="password" id="repassword" name="repassword" />
+                    <label>Confirm Password</label>
+                    <input type="password" id="repassword" name="repassword" required />
                 </div>
 
-                <button type="submit" id="resetBtn">Reset password</button>
-
+                <button type="submit" class="btn-primary">Reset Password</button>
             </form>
         </div>
     </div>
 
     <div class="modal" id="exitModal">
         <div class="modal-box">
-
-            <button class="modal-close" id="closeModal">x</button>
-
-            <h3>Leave this page?</h3>
-            <p>
-                If you exit now, the password reset process will be cancelled and cannot
-                be undone.
-            </p>
-
+            <button class="modal-close" id="closeModal">&times;</button>
+            <h3>Cancel Reset?</h3>
+            <p>If you leave now, you will need to verify your email again.</p>
             <div class="modal-actions">
                 <button class="btn-secondary" id="stayBtn">Stay</button>
-                <button class="btn-primary" id="leaveBtn">Continue</button>
+                <button class="btn-primary" id="leaveBtn" data-redirect="login.php">Leave</button>
             </div>
-
         </div>
     </div>
 
-    <script src="js/userAuth.js"></script>
+    <script src="js/main.js"></script>
 </body>
-
 </html>

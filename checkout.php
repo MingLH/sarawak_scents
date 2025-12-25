@@ -155,49 +155,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 include 'includes/header.php';
 ?>
 
-<div class="container" style="max-width: 900px; margin: 40px auto; padding: 0 20px;">
+<div class="checkout-container">
     
-    <h1 style="color: #064e3b; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 30px;">Secure Checkout</h1>
+    <h1 class="checkout-title">Secure Checkout</h1>
     
-    <form action="checkout.php" method="POST" style="display: flex; gap: 40px; flex-wrap: wrap;">
+    <form action="checkout.php" method="POST" class="checkout-form">
         
-        <div style="flex: 1; min-width: 300px;">
-            <div style="background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 20px;">
-                <h3 style="margin-top: 0; color: #333;">1. Shipping Details</h3>
+        <div class="checkout-left">
+            
+            <div class="checkout-section">
+                <h3 class="checkout-subtitle">1. Shipping Details</h3>
                 
-                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Full Name</label>
-                <input type="text" value="<?php echo htmlspecialchars($user_data['full_name']); ?>" disabled 
-                       style="width: 100%; padding: 10px; background: #eee; border: 1px solid #ddd; border-radius: 4px; margin-bottom: 15px;">
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color:#555;">Full Name</label>
+                    <input type="text" value="<?php echo htmlspecialchars($user_data['full_name']); ?>" disabled 
+                           class="form-input" style="background: #f4f6f8; cursor: not-allowed;">
+                </div>
                 
-                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Delivery Address</label>
-                <textarea name="address" required rows="3" 
-                          style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px;"><?php echo htmlspecialchars($user_data['address'] ?? ''); ?></textarea>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color:#555;">Delivery Address</label>
+                    <textarea name="address" required rows="3" class="form-input" 
+                              style="height: auto; font-family: inherit;"><?php echo htmlspecialchars($user_data['address'] ?? ''); ?></textarea>
+                </div>
             </div>
 
-            <div style="background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-                <h3 style="margin-top: 0; color: #333;">2. Payment Method</h3>
-                <div style="display: flex; flex-direction: column; gap: 10px;">
-                    <label style="background: #f9f9f9; padding: 10px; border: 1px solid #eee; border-radius: 4px; cursor: pointer;">
-                        <input type="radio" name="payment_method" value="Online Banking" checked> 
-                        Online Banking (FPX)
+            <div class="checkout-section">
+                <h3 class="checkout-subtitle">2. Payment Method</h3>
+                
+                <div class="payment-options">
+                    <label class="payment-label">
+                        <input type="radio" name="payment_method" value="Online Banking" checked class="payment-radio"> 
+                        <span class="payment-text">Online Banking (FPX)</span>
                     </label>
-                    <label style="background: #f9f9f9; padding: 10px; border: 1px solid #eee; border-radius: 4px; cursor: pointer;">
-                        <input type="radio" name="payment_method" value="Credit Card"> 
-                        Credit / Debit Card
+                    
+                    <label class="payment-label">
+                        <input type="radio" name="payment_method" value="Credit Card" class="payment-radio"> 
+                        <span class="payment-text">Credit / Debit Card</span>
                     </label>
-                    <label style="background: #f9f9f9; padding: 10px; border: 1px solid #eee; border-radius: 4px; cursor: pointer;">
-                        <input type="radio" name="payment_method" value="E-Wallet"> 
-                        Touch 'n Go / GrabPay
+                    
+                    <label class="payment-label">
+                        <input type="radio" name="payment_method" value="E-Wallet" class="payment-radio"> 
+                        <span class="payment-text">Touch 'n Go / GrabPay</span>
                     </label>
                 </div>
             </div>
         </div>
 
-        <div style="flex: 1; min-width: 300px;">
-            <div style="background: #f8f9fa; padding: 25px; border-radius: 8px; border: 1px solid #e9ecef;">
-                <h3 style="margin-top: 0; color: #333;">Order Summary</h3>
-                <div style="font-size: 0.9rem; color: #666; margin-bottom: 15px;">
-                    Date: <?php echo date('d M Y, h:i A'); ?>
+        <div class="checkout-right">
+            <div class="order-summary-box">
+                <h3 class="checkout-subtitle">Order Summary</h3>
+                
+                <div style="margin-bottom: 15px; font-size: 0.9rem; color: #888;">
+                    Date: <?php echo date('d M Y'); ?>
                 </div>
                 
                 <?php 
@@ -206,29 +215,29 @@ include 'includes/header.php';
                 while($row = mysqli_fetch_assoc($result)): 
                     $qty = $_SESSION['cart'][$row['product_id']];
                 ?>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.95rem; color: #555;">
-                        <span><?php echo $qty; ?>x <?php echo htmlspecialchars($row['name']); ?></span>
+                    <div class="summary-row">
+                        <span class="summary-item-name">
+                            <?php echo $qty; ?>x <?php echo htmlspecialchars($row['name']); ?>
+                        </span>
                         <span>RM <?php echo number_format($row['price'] * $qty, 2); ?></span>
                     </div>
                 <?php endwhile; ?>
                 
-                <hr style="margin: 20px 0; border-color: #ddd;">
-                
-                <div style="display: flex; justify-content: space-between; font-size: 1.3rem; font-weight: bold; color: #064e3b; margin-bottom: 25px;">
-                    <span>Total To Pay</span>
+                <div class="summary-total">
+                    <span>Total</span>
                     <span>RM <?php echo number_format($total_amount, 2); ?></span>
                 </div>
 
-                <button type="submit" onclick="return confirm('Confirm payment of RM <?php echo $total_amount; ?>?');"
-                        style="width: 100%; background: #064e3b; color: white; padding: 15px; border: none; border-radius: 5px; font-size: 1.1rem; font-weight: bold; cursor: pointer;">
-                    Pay Now 🔒
+                <button type="submit" onclick="return confirm('Confirm payment of RM <?php echo $total_amount; ?>?');" class="btn-pay">
+                    <i class="fas fa-lock"></i> Pay Now
                 </button>
                 
-                <p style="text-align: center; margin-top: 15px; font-size: 0.85rem; color: #888;">
-                    This is a secure 256-bit SSL encrypted payment.
-                </p>
+                <div class="secure-notice">
+                    <i class="fas fa-shield-alt"></i> 256-bit SSL Encrypted Payment
+                </div>
             </div>
         </div>
+
     </form>
 </div>
 

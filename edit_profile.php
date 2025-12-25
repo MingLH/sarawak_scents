@@ -13,7 +13,6 @@ $msg = "";
 $msg_type = ""; // 'success' or 'error'
 
 // 2. FETCH CURRENT USER DATA
-// We need the current password hash to verify it later
 $sql = "SELECT * FROM users WHERE user_id = $user_id";
 $result = mysqli_query($conn, $sql);
 $user = mysqli_fetch_assoc($result);
@@ -35,13 +34,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $msg = "Name, Phone, and Address are required.";
         $msg_type = "error";
     } 
-    // --- 🛡️ NEW: SERVER-SIDE NAME VALIDATION ---
+    // SERVER-SIDE NAME VALIDATION
     elseif (!preg_match("/^[a-zA-Z\s]+$/", $name)) {
         $msg = "Full Name must only contain alphabets (A-Z) and spaces.";
         $msg_type = "error";
     }
-    // --- 🛡️ NEW: SERVER-SIDE PHONE VALIDATION ---
-    // Matches your JS pattern: Starts with 0, followed by 1-9, then 8 or 9 digits (Total 10-11)
+    // SERVER-SIDE PHONE VALIDATION
     elseif (!preg_match("/^0[1-9]\d{8,9}$/", $phone)) {
         $msg = "Invalid phone number format (must start with 0, 10-11 digits total).";
         $msg_type = "error";
@@ -84,6 +82,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } 
         // --- LOGIC: NO PASSWORD CHANGE (Update Info Only) ---
         else {
+            // We still verify current password for security if you wish, 
+            // OR strictly require it only for password changes.
+            // Based on your previous code, we just update.
             $update_sql = "UPDATE users SET full_name='$name', phone_number='$phone', address='$address' WHERE user_id=$user_id";
             if (mysqli_query($conn, $update_sql)) {
                 $msg = "Profile updated successfully!";
@@ -102,67 +103,77 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 include 'includes/header.php';
 ?>
 
-<div class="container" style="max-width: 800px; margin: 40px auto; padding: 0 20px;">
+<div class="edit-container">
     
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px;">
-        <h1 style="color: #064e3b; margin: 0;">Edit Profile</h1>
-        <a href="profile.php" style="text-decoration: none; color: #666;">&larr; Back to Dashboard</a>
+    <div class="edit-header">
+        <h1 class="edit-title">Edit Profile</h1>
+        <a href="profile.php" class="back-link-profile">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
     </div>
 
     <?php if ($msg): ?>
-        <div style="padding: 15px; border-radius: 5px; margin-bottom: 20px; font-weight: bold; 
-            background: <?php echo ($msg_type == 'success') ? '#d1fae5' : '#fee2e2'; ?>; 
-            color: <?php echo ($msg_type == 'success') ? '#065f46' : '#991b1b'; ?>;">
+        <div class="alert-msg <?php echo ($msg_type == 'success') ? 'alert-success' : 'alert-error'; ?>">
             <?php echo $msg; ?>
         </div>
     <?php endif; ?>
     
-    <form method="POST" id="editProfileForm" style="display: flex; gap: 40px; flex-wrap: wrap;">
+    <form method="POST" id="editProfileForm" class="edit-grid">
         
-        <div style="flex: 1; min-width: 300px;">
-            <div style="background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-                <h3 style="margin-top: 0; color: #333; margin-bottom: 20px;">Personal Details</h3>
+        <div class="edit-card">
+            <h3 class="edit-subtitle">Personal Details</h3>
 
-                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Full Name</label>
-                <input type="text" name="full_name" id="full_name" value="<?php echo htmlspecialchars($user['full_name']); ?>" required 
-                       style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px;">
-
-                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Phone Number</label>
-                <input type="text" name="phone" id="phone" value="<?php echo htmlspecialchars($user['phone_number']); ?>" required 
-                       style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px;">
-
-                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Shipping Address</label>
-                <textarea name="address" rows="4" required 
-                          style="width: 100%; padding: 10px; margin-bottom: 5px; border: 1px solid #ccc; border-radius: 4px;"><?php echo htmlspecialchars($user['address']); ?></textarea>
+            <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <input type="text" name="full_name" id="full_name" 
+                       value="<?php echo htmlspecialchars($user['full_name']); ?>" required 
+                       class="form-input">
             </div>
+
+            <div class="form-group">
+                <label class="form-label">Phone Number</label>
+                <input type="text" name="phone" id="phone" 
+                       value="<?php echo htmlspecialchars($user['phone_number']); ?>" required 
+                       class="form-input">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Shipping Address</label>
+                <textarea name="address" rows="4" required class="form-input" 
+                          style="height: auto;"><?php echo htmlspecialchars($user['address']); ?></textarea>
+            </div>
+            
+            <button type="submit" class="btn-save">Save Changes</button>
         </div>
 
-        <div style="flex: 1; min-width: 300px;">
-            <div style="background: #f9fafb; padding: 25px; border-radius: 8px; border: 1px solid #e5e7eb;">
-                <h3 style="margin-top: 0; color: #333; margin-bottom: 10px;">Change Password</h3>
-                <p style="font-size: 0.85rem; color: #666; margin-bottom: 20px;">
-                    Leave blank if you do not want to change your password.
-                </p>
+        <div class="edit-card password-card">
+            <h3 class="edit-subtitle">Change Password</h3>
+            <p style="font-size: 0.85rem; color: #666; margin-bottom: 20px;">
+                Leave these blank if you do not want to change your password.
+            </p>
 
-                <label style="display: block; margin-bottom: 5px; font-weight: bold;">New Password</label>
-                <input type="password" name="new_password" id="new_password" placeholder="New Password"
-                       style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px;">
-
-                <label style="display: block; margin-bottom: 5px; font-weight: bold;">Confirm New Password</label>
-                <input type="password" name="confirm_password" id="confirm_password" placeholder="Confirm New Password"
-                       style="width: 100%; padding: 10px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 4px;">
-
-                <hr style="margin: 20px 0; border-color: #ddd;">
-
-                <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #d35400;">Current Password (Required to Save)</label>
-                <input type="password" name="current_password" required placeholder="Enter current password to save changes"
-                       style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #d35400; border-radius: 4px; background: #fff5f0;">
+            <div class="form-group">
+                <label class="form-label">New Password</label>
+                <input type="password" name="new_password" id="new_password" 
+                       placeholder="New Password" class="form-input">
             </div>
 
-            <div style="margin-top: 20px; text-align: right;">
-                <button type="submit" style="background: #064e3b; color: white; padding: 12px 30px; border: none; border-radius: 5px; font-size: 1rem; cursor: pointer; font-weight: bold;">
-                    Save Changes
-                </button>
+            <div class="form-group">
+                <label class="form-label">Confirm New Password</label>
+                <input type="password" name="confirm_password" id="confirm_password" 
+                       placeholder="Confirm New Password" class="form-input">
+            </div>
+
+            <hr style="margin: 20px 0; border-color: #ddd;">
+
+            <div class="form-group">
+                <label class="form-label" style="color: #d35400;">Current Password</label>
+                <input type="password" name="current_password" 
+                       placeholder="Required for password changes" 
+                       class="form-input current-pass-input">
+                <small style="color: #888; display:block; margin-top:5px;">
+                    Required only if changing password.
+                </small>
             </div>
         </div>
 
@@ -175,8 +186,9 @@ document.getElementById('editProfileForm').addEventListener('submit', function(e
     const phoneInput = document.getElementById('phone');
     const newPass = document.getElementById('new_password').value;
     const confirmPass = document.getElementById('confirm_password').value;
+    const currentPass = document.querySelector('input[name="current_password"]');
     
-    // REGEX PATTERNS (Synced with Backend)
+    // REGEX PATTERNS
     const namePattern = /^[a-zA-Z\s]+$/;
     const phonePattern = /^0[1-9]\d{8,9}$/;
     const passwordPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+[\]{};':"\\|,.<>/?])(?=\S+$).{6,8}$/;
@@ -184,7 +196,7 @@ document.getElementById('editProfileForm').addEventListener('submit', function(e
     // 1. NAME CHECK
     if (!namePattern.test(nameInput.value)) {
         e.preventDefault();
-        alert("Full Name must only contain alphabets (A-Z) and spaces. Numbers and symbols are not allowed.");
+        alert("Full Name must only contain alphabets (A-Z) and spaces.");
         nameInput.focus();
         return;
     }
@@ -197,11 +209,18 @@ document.getElementById('editProfileForm').addEventListener('submit', function(e
         return;
     }
 
-    // 3. PASSWORD CHECK (Only if changing)
+    // 3. PASSWORD CHECK
     if (newPass !== "") {
+        if (currentPass.value === "") {
+            e.preventDefault();
+            alert("Please enter your Current Password to approve this change.");
+            currentPass.focus();
+            return;
+        }
+
         if (!passwordPattern.test(newPass)) {
             e.preventDefault();
-            alert("Password must be 6-8 characters, include 1 uppercase, 1 number, 1 special character, and no spaces.");
+            alert("New Password must be 6-8 characters, include 1 uppercase, 1 number, 1 special character.");
             return;
         }
 

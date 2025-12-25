@@ -1,5 +1,5 @@
 <?php
-
+// --- LOGIC SECTION (UNTOUCHED) ---
 include 'includes/db_connect.php';
 include 'includes/check_authorization.php';
 
@@ -34,7 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
     
-    // --- PASSWORD HASHING (Crucial for Security) ---
+    // --- PASSWORD HASHING ---
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
     // 3. Insert Data 
@@ -57,56 +57,63 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Create new account</title>
+    <title>Create Account - Sarawak Scents</title>
     <link rel="stylesheet" href="css/style.css" />
 </head>
-
 <body>
 
-    <a href="index.php" class="back-link" id="backBtn"><- <span class="back-text">Back</span></a>
+    <a href="index.php" class="back-link" id="backBtn">
+        <span>&larr;</span> Back
+    </a>
 
-    <div class="signup-container">
-        <div class="card">
+    <div class="auth-container">
+        <div class="card"> <div class="logo-container">
+                <img src="assets/images/Sarawak_Scents_Logo.png" alt="Logo">
+            </div>
+
             <h1>Create new account</h1>
             <p class="subtitle">Please fill in the required information</p>
+            
             <form action="signup.php" method="post" name="signupForm" id="signupForm">
 
                 <div class="field">
                     <label>Full Name</label>
-                    <input type="text" id="name" name="name" placeholder="Enter your full name" />
+                    <input type="text" id="name" name="name" placeholder="Enter your full name" required />
                 </div>
 
                 <div class="field">
                     <label>Phone number</label>
-                    <input type="tel" id="phone" name="phone" placeholder="Enter your phone number e.g. 0123456789" />
+                    <input type="tel" id="phone" name="phone" placeholder="e.g. 0123456789" />
                 </div>
 
                 <div class="field">
                     <label>Email</label>
-                    <input type="email" id="email" name="email" placeholder="Enter your email e.g. abc@gmail.com" />
+                    <input type="email" id="email" name="email" placeholder="e.g. user@example.com" required />
                 </div>
 
                 <div class="field">
                     <label>Password</label>
-                    <input type="password" id="password" name="password"
-                        placeholder="8 characters with letters and numbers" />
+                    <input type="password" id="password" name="password" placeholder="Min 8 chars, letters & numbers" required />
                 </div>
 
                 <div class="field">
                     <label>Confirm Password</label>
-                    <input type="password" id="repassword" name="repassword" />
+                    <input type="password" id="repassword" name="repassword" required />
                 </div>
 
-                <div class="terms"> <input type="checkbox" id="accept" /> <label for="accept"> I accept the <a
-                            href="terms.html">Terms</a> and <a href="privacy.html">Privacy Policy</a> </label> </div>
+                <div class="field" style="display:flex; align-items:center; gap:10px;"> 
+                    <input type="checkbox" id="accept" style="width:auto;" required /> 
+                    <label for="accept" style="margin:0; font-weight:normal; font-size:0.9rem;">
+                        I accept the <a href="terms.html" style="color:#064e3b; font-weight:bold;">Terms</a> and <a href="privacy.html" style="color:#064e3b; font-weight:bold;">Privacy Policy</a>
+                    </label> 
+                </div>
 
                 <button type="submit" name="btnSubmit">Sign Up</button>
 
-                <p class="login">
+                <p class="signup">
                     Already have an account? <a href="login.php">Log In</a>
                 </p>
 
@@ -116,28 +123,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     <div class="modal" id="exitModal">
         <div class="modal-box">
-            <button class="modal-close" id="closeModal">x</button>
-            <h3>Leave this page?</h3>
-            <p><br>All unsaved changes will be gone</p>
+            <button class="modal-close" id="closeModal" style="position:absolute; top:10px; right:15px; background:none; border:none; font-size:1.5rem; cursor:pointer;">&times;</button>
+            <h3 style="margin-top:0;">Leave this page?</h3>
+            <p style="color:#666; margin-bottom:20px;">All unsaved changes will be gone</p>
+            
             <div class="modal-actions">
                 <button class="btn-secondary" id="stayBtn">Stay</button>
-                <button class="btn-primary" id="leaveBtn">Continue</button>
+                
+                <button class="btn-primary" id="leaveBtn" data-redirect="index.php" style="margin-top:0;">Continue</button>
             </div>
         </div>
     </div>
 
     <script src="js/userAuth.js"></script>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const leaveBtn = document.getElementById('leaveBtn');
-            if(leaveBtn) {
-                leaveBtn.addEventListener('click', function() {
-                    window.location.href = 'index.php';
-                });
-            }
-        });
-    </script>
 </body>
-
 </html>

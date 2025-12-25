@@ -15,8 +15,8 @@ $error_msg = "";
 if (isset($_GET['msg'])) {
     if ($_GET['msg'] == 'updated') $success_msg = "Product updated successfully!";
     if ($_GET['msg'] == 'added') $success_msg = "Product added successfully!";
-    if ($_GET['msg'] == 'deleted') $success_msg = "Product permanently deleted (No sales history found).";
-    if ($_GET['msg'] == 'archived') $success_msg = "Product moved to Archive (Hidden from shop to preserve receipts).";
+    if ($_GET['msg'] == 'deleted') $success_msg = "Product permanently deleted.";
+    if ($_GET['msg'] == 'archived') $success_msg = "Product moved to Archive (Hidden).";
     if ($_GET['msg'] == 'restored') $success_msg = "Product restored successfully.";
 }
 
@@ -24,19 +24,17 @@ if (isset($_GET['msg'])) {
 if (isset($_GET['delete'])) {
     $deleteId = (int)$_GET['delete'];
     
-    // STEP 1: Try to Hard Delete (Permanent)
+    // STEP 1: Try to Hard Delete
     $query = "DELETE FROM products WHERE product_id = $deleteId";
     
     try {
         if (mysqli_query($conn, $query)) {
-            // Success! It was deleted permanently.
             header("Location: products.php?msg=deleted");
             exit();
         }
     } catch (mysqli_sql_exception $e) {
-        // STEP 2: Catch Foreign Key Error (It has sales history)
+        // STEP 2: Fallback to Archive if FK constraint fails
         if ($e->getCode() == 1451) {
-            // Fallback: Soft Delete (Archive)
             $archiveQuery = "UPDATE products SET is_active = 0 WHERE product_id = $deleteId";
             if (mysqli_query($conn, $archiveQuery)) {
                 header("Location: products.php?msg=archived");
@@ -121,8 +119,7 @@ if (isset($_GET['edit'])) {
     $editProduct = mysqli_fetch_assoc($res);
 }
 
-// 7. FETCH PRODUCTS + SALES COUNT (To know if we can delete or must archive)
-// We use a subquery to count how many times each product appears in 'order_items'
+// 7. FETCH PRODUCTS
 $sql = "SELECT p.*, c.category_name, 
         (SELECT COUNT(*) FROM order_items WHERE product_id = p.product_id) as sales_count 
         FROM products p 
@@ -134,116 +131,124 @@ $categoriesResult = mysqli_query($conn, "SELECT * FROM categories ORDER BY categ
 
 <?php include 'includes/header.php'; ?>
 
-<style>
-    .row-inactive { background-color: #f3f4f6; color: #999; }
-    .row-inactive img { opacity: 0.5; filter: grayscale(100%); }
-    .badge-inactive { background: #9ca3af; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; }
-    .badge-active { background: #10b981; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; }
-    
-    /* Description truncation style */
-    .desc-cell { font-size: 0.85rem; color: #666; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-</style>
-
-    <h1 style="color: #333;">Product Management</h1>
+    <div class="admin-header">
+        <h1 style="color: #333; margin: 0;">Product Management</h1>
+        <a href="#productForm" class="btn-action" style="background:#064e3b;">
+            <i class="fas fa-plus"></i> Add New
+        </a>
+    </div>
 
     <?php if ($success_msg): ?> <div class="alert alert-success"><?php echo $success_msg; ?></div> <?php endif; ?>
     <?php if ($error_msg): ?> <div class="alert alert-error"><?php echo $error_msg; ?></div> <?php endif; ?>
 
-    <h3 style="color:#555; margin-bottom:10px;">Current Inventory</h3>
-    <table>
-        <thead>
-            <tr>
-                <th>Status</th>
-                <th>Image</th>
-                <th>Name</th>
-                <th>Sales</th> <th>Description</th> <th>Price</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php if (mysqli_num_rows($productsResult) > 0): ?>
-                <?php while ($p = mysqli_fetch_assoc($productsResult)): ?>
-                <tr class="<?php echo ($p['is_active'] == 0) ? 'row-inactive' : ''; ?>">
-                    
-                    <td>
-                        <?php if ($p['is_active']): ?>
-                            <span class="badge-active">Active</span>
-                        <?php else: ?>
-                            <span class="badge-inactive">Archived</span>
-                        <?php endif; ?>
-                    </td>
+    <div class="card">
+        <h3 style="color:#555; margin-top:0; margin-bottom:15px;">Current Inventory</h3>
+        
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Status</th>
+                        <th>Image</th>
+                        <th>Name</th>
+                        <th>Sales</th>
+                        <th>Price</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (mysqli_num_rows($productsResult) > 0): ?>
+                        <?php while ($p = mysqli_fetch_assoc($productsResult)): ?>
+                        <tr class="<?php echo ($p['is_active'] == 0) ? 'row-inactive' : ''; ?>">
+                            
+                            <td>
+                                <?php if ($p['is_active']): ?>
+                                    <span class="badge-active">Active</span>
+                                <?php else: ?>
+                                    <span class="badge-inactive">Archived</span>
+                                <?php endif; ?>
+                            </td>
 
-                    <td>
-                        <?php $img = !empty($p['image']) ? $p['image'] : 'default.jpg'; ?>
-                        <img src="../assets/images/<?php echo htmlspecialchars($img); ?>" class="product-img" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;">
-                    </td>
+                            <td>
+                                <?php $img = !empty($p['image']) ? $p['image'] : 'default.jpg'; ?>
+                                <img src="../assets/images/<?php echo htmlspecialchars($img); ?>" 
+                                     style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;">
+                            </td>
 
-                    <td>
-                        <strong><?php echo htmlspecialchars($p['name']); ?></strong><br>
-                        <small style="color:#888;"><?php echo htmlspecialchars($p['category_name'] ?? '-'); ?></small>
-                    </td>
+                            <td>
+                                <strong><?php echo htmlspecialchars($p['name']); ?></strong><br>
+                                <small style="color:#888;"><?php echo htmlspecialchars($p['category_name'] ?? '-'); ?></small>
+                            </td>
 
-                    <td style="text-align:center;">
-                        <?php echo $p['sales_count']; ?> sold
-                    </td>
+                            <td style="text-align:center;">
+                                <?php echo $p['sales_count']; ?> sold
+                            </td>
 
-                    <td class="desc-cell" title="<?php echo htmlspecialchars($p['description']); ?>">
-                        <?php echo htmlspecialchars($p['description']); ?>
-                    </td>
+                            <td style="font-weight:bold; color:#064e3b;">RM <?php echo number_format($p['price'], 2); ?></td>
 
-                    <td style="font-weight:bold; color:#064e3b;">RM <?php echo number_format($p['price'], 2); ?></td>
+                            <td>
+                                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                                    <a href="?edit=<?php echo $p['product_id']; ?>#productForm" class="action-btn btn-edit">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                    
+                                    <?php if ($p['is_active']): ?>
+                                        <?php if ($p['sales_count'] > 0): ?>
+                                            <a href="?delete=<?php echo $p['product_id']; ?>" class="action-btn btn-archive" 
+                                               onclick="return confirm('This product has sales history.\nIt will be ARCHIVED (Hidden).\n\nProceed?');">
+                                               <i class="fas fa-archive"></i> Archive
+                                            </a>
+                                        <?php else: ?>
+                                            <a href="?delete=<?php echo $p['product_id']; ?>" class="action-btn btn-delete" 
+                                               onclick="return confirm('Permanently DELETE this product?\n(It has never been sold).');">
+                                               <i class="fas fa-trash"></i> Delete
+                                            </a>
+                                        <?php endif; ?>
+                                    <?php else: ?>
+                                        <a href="?restore=<?php echo $p['product_id']; ?>" class="action-btn btn-restore" 
+                                           onclick="return confirm('Restore this product?');">
+                                           <i class="fas fa-undo"></i> Restore
+                                        </a>
+                                    <?php endif; ?>
+                                </div>
+                            </td>
+                        </tr>
+                        <?php endwhile; ?>
+                    <?php else: ?>
+                        <tr><td colspan="6" style="text-align:center; padding:20px;">No products found.</td></tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-                    <td>
-                        <a href="?edit=<?php echo $p['product_id']; ?>#productForm" class="btn-edit" style="color: #2980b9; text-decoration: none; font-weight: bold; margin-right: 10px;">Edit</a>
-                        
-                        <?php if ($p['is_active']): ?>
-                            <?php if ($p['sales_count'] > 0): ?>
-                                <a href="?delete=<?php echo $p['product_id']; ?>" style="color: #d97706; text-decoration: none; font-weight: bold;" 
-                                   onclick="return confirm('This product has sales history.\nIt will be ARCHIVED (Hidden), not deleted, to preserve receipts.\n\nProceed?');">
-                                   Archive
-                                </a>
-                            <?php else: ?>
-                                <a href="?delete=<?php echo $p['product_id']; ?>" style="color: #c0392b; text-decoration: none; font-weight: bold;" 
-                                   onclick="return confirm('Permanently DELETE this product?\n(It has never been sold).');">
-                                   Delete
-                                </a>
-                            <?php endif; ?>
-                        <?php else: ?>
-                            <a href="?restore=<?php echo $p['product_id']; ?>" style="color: #059669; text-decoration: none; font-weight: bold;" 
-                               onclick="return confirm('Restore this product to the shop?');">
-                               Restore
-                            </a>
-                        <?php endif; ?>
-                    </td>
-                </tr>
-                <?php endwhile; ?>
-            <?php else: ?>
-                <tr><td colspan="7" style="text-align:center; padding:20px;">No products found.</td></tr>
-            <?php endif; ?>
-        </tbody>
-    </table>
-
-    <div class="card" id="productForm" style="border-top: 4px solid #064e3b; margin-top:30px;">
-        <h3 style="margin-top:0; color:#064e3b;"><?php echo $editProduct ? 'Edit Product' : 'Add New Product'; ?></h3>
+    <div class="card" id="productForm" style="border-top: 4px solid #064e3b;">
+        <h3 style="margin-top:0; color:#064e3b; margin-bottom:20px;">
+            <?php echo $editProduct ? 'Edit Product' : 'Add New Product'; ?>
+        </h3>
         
         <form action="products.php" method="POST" enctype="multipart/form-data">
             <?php if ($editProduct): ?>
                 <input type="hidden" name="edit_id" value="<?php echo $editProduct['product_id']; ?>">
             <?php endif; ?>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="form-grid">
                 <div>
-                    <div style="margin-bottom:15px;">
-                        <label style="display:block; font-weight:bold; margin-bottom:5px;">Product Name</label>
-                        <input type="text" name="name" value="<?php echo htmlspecialchars($editProduct['name'] ?? ''); ?>" required placeholder="e.g. Lavender Oil" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:4px;">
+                    <div class="form-group">
+                        <label class="form-label">Product Name</label>
+                        <input type="text" name="name" class="form-control" 
+                               value="<?php echo htmlspecialchars($editProduct['name'] ?? ''); ?>" 
+                               required placeholder="e.g. Lavender Oil">
                     </div>
-                    <div style="margin-bottom:15px;">
-                        <label style="display:block; font-weight:bold; margin-bottom:5px;">Price (RM)</label>
-                        <input type="number" step="0.01" min="0.01" name="price" value="<?php echo $editProduct['price'] ?? ''; ?>" required placeholder="0.00" style="width:100%; padding:10px; border:1px solid #ddd; border-radius:4px;">
+                    <div class="form-group">
+                        <label class="form-label">Price (RM)</label>
+                        <input type="number" step="0.01" min="0.01" name="price" class="form-control" 
+                               value="<?php echo $editProduct['price'] ?? ''; ?>" 
+                               required placeholder="0.00">
                     </div>
-                    <div style="margin-bottom:15px;">
-                        <label style="display:block; font-weight:bold; margin-bottom:5px;">Category</label>
-                        <select name="category_id" required style="width:100%; padding:10px; border:1px solid #ddd; border-radius:4px;">
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <select name="category_id" class="form-control" required>
                             <option value="">-- Select Category --</option>
                             <?php 
                             mysqli_data_seek($categoriesResult, 0);
@@ -259,27 +264,34 @@ $categoriesResult = mysqli_query($conn, "SELECT * FROM categories ORDER BY categ
                 </div>
 
                 <div>
-                    <div style="margin-bottom:15px;">
-                        <label style="display:block; font-weight:bold; margin-bottom:5px;">Description</label>
-                        <textarea name="description" rows="4" required placeholder="Enter product details..." style="width:100%; padding:10px; border:1px solid #ddd; border-radius:4px;"><?php echo htmlspecialchars($editProduct['description'] ?? ''); ?></textarea>
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" rows="5" class="form-control" 
+                                  required placeholder="Enter details..."><?php echo htmlspecialchars($editProduct['description'] ?? ''); ?></textarea>
                     </div>
-                    <div style="margin-bottom:15px;">
-                        <label style="display:block; font-weight:bold; margin-bottom:5px;">Product Image</label>
+                    <div class="form-group">
+                        <label class="form-label">Product Image</label>
                         <?php if ($editProduct && $editProduct['image']): ?>
-                            <div style="margin-bottom:5px;">
-                                <img src="../assets/images/<?php echo htmlspecialchars($editProduct['image']); ?>" style="height:50px; vertical-align:middle;"> 
-                                <small style="color:#666;">Current</small>
+                            <div class="current-img-preview">
+                                <img src="../assets/images/<?php echo htmlspecialchars($editProduct['image']); ?>" style="height:50px;"> 
+                                <small style="color:#666;">Current Image</small>
                             </div>
                         <?php endif; ?>
-                        <input type="file" name="image" accept="image/*" <?php echo $editProduct ? '' : 'required'; ?>>
+                        <input type="file" name="image" accept="image/*" class="form-control" style="padding: 9px;" 
+                               <?php echo $editProduct ? '' : 'required'; ?>>
                     </div>
                 </div>
             </div>
 
-            <div style="margin-top: 15px;">
-                <button type="submit" class="btn-action" style="background: #064e3b; padding:10px 20px; font-size:1rem;"><?php echo $editProduct ? 'Update Product' : 'Add Product'; ?></button>
+            <div style="margin-top: 20px; display:flex; gap:10px;">
+                <button type="submit" class="btn-action" style="background: #064e3b; padding:12px 25px; font-size:1rem;">
+                    <?php echo $editProduct ? 'Update Product' : 'Add Product'; ?>
+                </button>
+                
                 <?php if ($editProduct): ?>
-                    <a href="products.php" class="btn-action" style="background: #7f8c8d; margin-left:10px; padding:10px 20px; font-size:1rem;">Cancel Edit</a>
+                    <a href="products.php" class="btn-action" style="background: #64748b; padding:12px 25px; font-size:1rem;">
+                        Cancel
+                    </a>
                 <?php endif; ?>
             </div>
         </form>

@@ -1,29 +1,47 @@
-    <?php
-    // verify_otp.php
-    header('Content-Type: application/json');
-    include 'includes/db_connect.php';
-    include 'includes/check_authorization.php';
+<?php
+// 1. SILENCE HTML ERRORS
+error_reporting(0);
+ini_set('display_errors', 0);
 
-    $data = json_decode(file_get_contents("php://input"), true);
+header('Content-Type: application/json');
+
+try {
+    if (session_status() === PHP_SESSION_NONE) session_start();
+    
+    require 'includes/db_connect.php';
+
+    $inputJSON = file_get_contents("php://input");
+    $data = json_decode($inputJSON, true);
+
     $email = mysqli_real_escape_string($conn, $data['email'] ?? '');
     $otp_input = mysqli_real_escape_string($conn, $data['otp'] ?? '');
 
-    // Check Database for matching Email AND OTP
+    if (empty($email) || empty($otp_input)) {
+        throw new Exception("Email and Code are required");
+    }
+
+    // 2. CHECK MATCH
     $sql = "SELECT * FROM users WHERE email = '$email' AND otp_code = '$otp_input'";
     $result = mysqli_query($conn, $sql);
 
     if (mysqli_num_rows($result) > 0) {
-        // MATCH FOUND!
-        
-        // Save email in session so reset_password.html knows who to update
+        // 3. SUCCESS
         $_SESSION['reset_email'] = $email;
         
-        // Clear the OTP from DB so it can't be used again
+        // Clear OTP
         mysqli_query($conn, "UPDATE users SET otp_code = NULL WHERE email = '$email'");
 
         echo json_encode(['status' => 'success']);
     } else {
-        // INVALID OTP
-        echo json_encode(['status' => 'error', 'message' => 'Invalid verification code']);
+        echo json_encode(['status' => 'error', 'message' => 'Invalid or expired code']);
     }
-    ?>
+
+} catch (Exception $e) {
+    echo json_encode([
+        'status' => 'error',
+        'message' => $e->getMessage()
+    ]);
+}
+
+if (isset($conn)) mysqli_close($conn);
+?>
