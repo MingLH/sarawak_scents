@@ -1,8 +1,8 @@
 -- Project: Sarawak Scents
 -- Updated: Added 'is_active' for Soft Delete + Full Demo Data (Sept - Dec 24)
 
--- CREATE DATABASE IF NOT EXISTS sarawak_scents_db;
--- USE sarawak_scents_db;
+CREATE DATABASE IF NOT EXISTS sarawak_scents_db;
+USE sarawak_scents_db;
 
 -- ==========================================
 -- 1. DROP TABLES (Cleanup)
