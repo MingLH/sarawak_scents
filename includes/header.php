@@ -18,16 +18,16 @@ $cart_count = isset($_SESSION['cart']) ? array_sum($_SESSION['cart']) : 0;
     <title>Sarawak Scents</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
+    <link rel="stylesheet" href="css/style.css">
+
     <style>
         * { box-sizing: border-box; }
 
         /* Base Navigation Styles */
-        body { 
-            font-family: 'Poppins', sans-serif; 
-            margin: 0; 
-            background-color: #f9f9f9;
-            padding-top: 90px; 
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding-top: 90px;
         }
 
         .navbar { 
@@ -122,7 +122,7 @@ $cart_count = isset($_SESSION['cart']) ? array_sum($_SESSION['cart']) : 0;
     <nav class="navbar">
         <div class="logo">
             <a href="index.php">
-                <img src="/sarawak_scents/assets/images/Sarawak_Scents_Logo.png" alt="Sarawak Scents" style="height: 50px;">
+                <img src="assets/images/Sarawak_Scents_Logo.png" alt="Sarawak Scents" style="height: 50px;">
             </a>
         </div>
 

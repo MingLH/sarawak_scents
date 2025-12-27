@@ -26,18 +26,18 @@ $fullName = isset($_SESSION['full_name']) ? $_SESSION['full_name'] : 'Visitor';
         
         <section class="hero-section" style="text-align: center; padding: 6rem 1rem; background: linear-gradient(to bottom, #f9f9f9, #ffffff);">
             <?php if ($role === 'member'): ?>
-                <p style="color: #27ae60; font-weight: bold; letter-spacing: 1px; margin-bottom: 0.5rem;">
+                <p class="fade-in-title" style="color: #27ae60; font-weight: bold; letter-spacing: 1px; margin-bottom: 0.5rem;">
                     WELCOME BACK, <?php echo strtoupper(htmlspecialchars($fullName)); ?>
                 </p>
             <?php endif; ?>
 
-            <h1 style="font-size: 3rem; color: #2c3e50; margin-bottom: 1rem;">Discover the Essence of Sarawak</h1>
-            <p style="font-size: 1.2rem; color: #555; max-width: 600px; margin: 0 auto 2rem auto;">
+            <h1 class="fade-in-title" style="font-size: 3rem; color: #2c3e50; margin-bottom: 1rem;">Discover the Essence of Sarawak</h1>
+            <p class="fade-in-title" style="font-size: 1.2rem; color: #555; max-width: 600px; margin: 0 auto 2rem auto;">
                 Premium handcrafted botanical fragrances, soaps, and candles made from the heart of Borneo.
             </p>
             
             <div class="hero-buttons">
-                <a href="shop.php" class="btn-primary" style="background: #2c3e50; color: white; padding: 15px 30px; text-decoration: none; border-radius: 30px; margin-right: 10px; font-weight: bold; transition: all 0.3s;">
+                <a href="shop.php" class="btn-primary fade-in-title" style="background: #2c3e50; color: white; padding: 15px 30px; text-decoration: none; border-radius: 30px; margin-right: 10px; font-weight: bold; transition: all 0.3s;">
                     Browse Catalog
                 </a>
                 <?php if ($role !== 'member'): ?>
@@ -136,7 +136,7 @@ $fullName = isset($_SESSION['full_name']) ? $_SESSION['full_name'] : 'Visitor';
 
             <div style="text-align: center; max-width: 250px;">
                 <div style="font-size: 2.5rem; margin-bottom: 1rem;">🚚</div>
-                <h3 style="margin-bottom: 0.5rem; color: #2c3e50;">Fast Delivery</h3>
+                <h3 class="fade-in-title" style="margin-bottom: 0.5rem; color: #2c3e50;">Fast Delivery</h3>
                 <p style="color: #666; line-height: 1.5;">Shipping throughout Malaysia within 3-5 business days.</p>
             </div>
 

@@ -69,7 +69,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link rel="stylesheet" href="css/style.css" />
 </head>
 
-<body>
+<body class="moving-bg">
     <div class="login-container">
 
         <?php if (isset($_SESSION['error_message'])): ?>
