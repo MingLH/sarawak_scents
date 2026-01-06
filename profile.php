@@ -63,7 +63,7 @@ include 'includes/header.php';
         </div>
     </div>
 
-    <h2 class="section-title">Order History</h2>
+    <h2 class="order-history-title">Order History</h2>
 
     <?php if (mysqli_num_rows($orders) > 0): ?>
         <table class="cart-table"> <thead>

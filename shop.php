@@ -102,7 +102,7 @@ $cat_result = mysqli_query($conn, "SELECT * FROM categories");
                             </div>
                             
                             <a href="product_details.php?id=<?php echo $product['product_id']; ?>" 
-                               style="background: #f3f4f6; color: #333; padding: 8px 15px; border-radius: 5px; text-decoration: none; font-size: 0.9rem; font-weight: 600; transition: 0.2s;">
+                               style="background: #064e3b; color: #ffffff; padding: 8px 15px; border-radius: 5px; text-decoration: none; font-size: 0.9rem; font-weight: 600; transition: 0.2s;">
                                View
                             </a>
                         </div>
